@@ -5,6 +5,7 @@ import (
     "image/color"
     "log"
     "math"
+    "math/rand"
     "time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
@@ -384,8 +385,8 @@ func (self *Circle) Draw(win *pixelgl.Window, ob *Observer) {
 
     relative_C := Snap(self.Center, ob)
     orth := &Point{relative_C[1], -relative_C[0], 0.0}
-    m := self.Radius*Magnitude(orth)
-    orth = &Point{orth[0]/m, orth[1]/m}
+    m := self.Radius/Magnitude(orth)
+    orth = &Point{orth[0]*m, orth[1]*m}
     edge := Add(orth, relative_C)
 
     rh1,th1,ph1 := RecToSphere(relative_C)
@@ -400,7 +401,7 @@ func (self *Circle) Draw(win *pixelgl.Window, ob *Observer) {
 
     d := math.Sqrt(math.Pow(x1-x3,2) + math.Pow(y1-y3,2))
 
-    if d < r*2 {
+    if d < r {
         imd.Color = colornames.Lightblue
         self.Active = true
     } else {
@@ -408,10 +409,115 @@ func (self *Circle) Draw(win *pixelgl.Window, ob *Observer) {
         self.Active = false
     }
     imd.Push(pixel.V(x1, y1))
-    imd.Circle(r, 200/rh1)
+    _ = rh1
+    imd.Circle(r, 0)
+    //imd.Circle(r, 200/rh1)
+    //imd.Ellipse(pixel.V(400/rh1,400/rh1), 0)
 
     imd.Draw(win)
 
+}
+
+type Particle struct {
+    Pos *Point
+    Theta float64
+    Phi float64
+    V float64
+    Decay float64
+    Step float64
+}
+
+func NewParticle(pos *Point, theta, phi, v, decay, step float64) *Particle {
+    return &Particle{pos, rand.Float64()*math.Pi*2, phi, v, decay, step}
+}
+
+func (self *Particle) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+    dx := self.Step*math.Cos(self.Theta)*math.Sqrt(self.V)
+    dy := self.Step*math.Sin(self.Theta)*math.Sqrt(self.V)
+    dz := 0.001*GRAVITY*math.Pow(self.Step, 2) + self.V*self.Step + self.Pos[2]
+    x := self.Pos[0]
+    y := self.Pos[1]
+    z := self.Pos[2]
+
+    if self.Step > self.Decay {
+        dx = 0
+        dy = 0
+        dz = 0
+        self.Theta = rand.Float64()*math.Pi*2
+        self.Step = 0
+    }
+    newPos := &Point{x+dx, y+dy, z+dz}
+    c := NewCircle(newPos, 0.5)
+    self.Step += dt
+    //fmt.Println(newPos, self.Step)
+    c.Draw(win, ob)
+}
+
+type Fountain struct {
+    Pos *Point
+    Parts int
+    Particles []*Particle
+    Theta float64
+    Phi float64
+    V float64
+    Decay float64
+    Step float64
+}
+
+func NewFountain(pos *Point, parts int, theta, phi, v float64, delay float64) *Fountain {
+    decay := float64(parts) * delay
+    particles := make([]*Particle, parts)
+    for i:=0;i<parts;i++ {
+        particles[i] = NewParticle(pos, theta, phi, v, decay, float64(i)*delay)
+    }
+
+    return &Fountain{pos, parts, particles, theta, phi, v, decay, 0}
+}
+
+func (self *Fountain) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+    for _,p := range self.Particles {
+        p.Draw(win, ob, dt)
+    }
+
+    //for i:=0;i<self.Parts;i++ {
+    //    t := self.Step + float64(i)*0.01
+    //    z := GRAVITY*math.Pow(t, 2) + self.V*t + self.Pos[2]
+    //    if self.Step > self.Decay {
+    //        z = 0
+    //        self.Step = 0
+    //    }
+    //    newPos := &Point{self.Pos[0], self.Pos[1], z}
+    //    c := NewCircle(newPos, 0.5)
+    //    self.Step += dt
+    //    //fmt.Println(newPos, self.Step)
+    //    c.Draw(win, ob)
+    //}
+}
+
+type Bouncing struct {
+    Pos *Point
+    Parts int
+    Theta float64
+    Phi float64
+    V float64
+    Decay int
+    Step float64
+}
+
+func NewBouncing(pos *Point, parts int, theta, phi, v float64, decay int) *Bouncing {
+    return &Bouncing{pos, parts, theta, phi, v, decay, 0}
+}
+
+func (self *Bouncing) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+    z := GRAVITY*math.Pow(self.Step, 2) + self.V*self.Step + self.Pos[2]
+    if z < 0 {
+        z = 0
+        self.Step = 0
+    }
+    newPos := &Point{self.Pos[0], self.Pos[1], z}
+    c := NewCircle(newPos, 0.5)
+    self.Step += dt
+    c.Draw(win, ob)
 }
 
 type Cursor struct {
@@ -481,7 +587,10 @@ func run() {
         }
 
     }
-    circ := NewCircle(&Point{30.0, 0.0, 5.0}, 5)
+    circ := NewCircle(&Point{30.0, 0.0, 5.0}, 0.5)
+    bounce := NewBouncing(&Point{50.0, 30.0, 1.0}, 10, 0.0, 0.0, 50.0, 0)
+    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5)
+
     alice := colornames.Aliceblue
     bg := alice
     inMenu := false
@@ -656,6 +765,8 @@ func run() {
             cube.Draw(win, me)
         }
         circ.Draw(win, me)
+        bounce.Draw(win, me, dt)
+        fount.Draw(win, me, dt)
 
         // update
 		win.Update()
