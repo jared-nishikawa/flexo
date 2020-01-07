@@ -35,8 +35,9 @@ func run() {
 	}
 
     // cursor options
+    win.DisableCursor()
     win.SetMousePosition(win.Bounds().Center())
-    win.SetCursorVisible(false)
+    //win.SetCursorVisible(false)
 
     col := color.RGBA{128, 128, 128, 150}
     cursor := NewCursor(WIDTH/2, HEIGHT/2, 10, 3, col)
@@ -79,7 +80,7 @@ func run() {
     alice := colornames.Aliceblue
     bg := alice
     inMenu := false
-    center := win.Bounds().Center()
+    //center := win.Bounds().Center()
 
     atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
     txt := text.New(pixel.ZV, atlas)
@@ -151,7 +152,7 @@ func run() {
 
             // necessary
             last = time.Now()
-            win.SetMousePosition(center)
+            //win.SetMousePosition(center)
             win.Update()
             continue
         }
@@ -206,12 +207,13 @@ func run() {
 
         }
         // align to mouse
+        prev := win.MousePreviousPosition()
         pos := win.MousePosition()
-        win.SetMousePosition(center)
+        //win.SetMousePosition(center)
 
         // compute mouse distance traveled
-        dx := pos.X - center.X
-        dy := pos.Y - center.Y
+        dx := pos.X - prev.X
+        dy := pos.Y - prev.Y
         if me.Locked {
             cursor.Color.A = 255
             cursor.X += dx*dt*100
