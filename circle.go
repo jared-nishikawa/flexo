@@ -24,7 +24,7 @@ func (self *Circle) Draw(win *pixelgl.Window, ob *Observer) {
     //}
     imd := imdraw.New(nil)
 
-    relative_C := ob.Snap(self.Center)
+    relative_C := Snap(self.Center, ob.Pos, ob.Theta, ob.Phi)
     orth := &Point{relative_C[1], -relative_C[0], 0.0}
     m := self.Radius/Magnitude(orth)
     orth = &Point{orth[0]*m, orth[1]*m}
@@ -56,9 +56,6 @@ func (self *Circle) Draw(win *pixelgl.Window, ob *Observer) {
     imd.Push(pixel.V(x1, y1))
     _ = rh1
     imd.Circle(r, 0)
-
-    //imd.Circle(r, 200/rh1)
-    //imd.Ellipse(pixel.V(400/rh1,400/rh1), 0)
 
     imd.Draw(win)
 

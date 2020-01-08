@@ -17,22 +17,15 @@ func NewLine(P,Q *Point, col color.RGBA) *Line {
     return &Line{P, Q, col}
 }
 
-func (self *Line) InView(ob *Observer) bool {
-    if ob.PointInView(self.P) && ob.PointInView(self.Q) {
-        return true
-    }
-    return false
-}
-
 func (self *Line) Draw(win *pixelgl.Window, ob *Observer) {
-    if !self.InView(ob) {
+    if !(ob.PointInView(self.P) && ob.PointInView(self.Q)) {
         return
     }
     imd := imdraw.New(nil)
     imd.Color = self.Color
 
-    relative_P := ob.Snap(self.P)
-    relative_Q := ob.Snap(self.Q)
+    relative_P := Snap(self.P, ob.Pos, ob.Theta, ob.Phi)
+    relative_Q := Snap(self.Q, ob.Pos, ob.Theta, ob.Phi)
 
     rh1,th1,ph1 := RecToSphere(relative_P)
     x1,y1 := ob.Project(th1,ph1)

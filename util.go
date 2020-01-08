@@ -2,6 +2,8 @@ package main
 
 import "math"
 
+type Point = [3]float64
+
 func SphereToRec(rho, theta, phi float64) *Point {
     x := rho*math.Cos(theta)*math.Sin(phi)
     y := rho*math.Sin(theta)*math.Sin(phi)
@@ -74,4 +76,11 @@ func Tilt(P *Point, phi float64) *Point {
     //rh, th, ph := RecToSphere(P)
     //ph += phi
     //return SphereToRec(rh, th, ph)
+}
+
+// translate Q to the origin, face the x-axis
+func Snap(P, Q *Point, theta, phi float64) *Point {
+    P1 := Translate(P, Q)
+    P2 := Rotate(P1, -theta)
+    return Tilt(P2, math.Pi/2-phi)
 }

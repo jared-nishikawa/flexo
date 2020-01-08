@@ -14,10 +14,10 @@ import (
 )
 
 const FOV = math.Pi/3
-const WIDTH = 1920.0
-//const WIDTH = 800.0
-const HEIGHT = 1080.0
-//const HEIGHT = 600.0
+//const WIDTH = 1920.0
+const WIDTH = 800.0
+//const HEIGHT = 1080.0
+const HEIGHT = 600.0
 const GRAVITY = -50
 const SENSITIVITY = 0.1
 
@@ -26,7 +26,7 @@ func run() {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Walking",
 		Bounds: pixel.R(0, 0, WIDTH, HEIGHT),
-		VSync:  true,
+		//VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
 
@@ -39,10 +39,12 @@ func run() {
     win.SetMousePosition(win.Bounds().Center())
     //win.SetCursorVisible(false)
 
-    col := color.RGBA{128, 128, 128, 150}
-    cursor := NewCursor(WIDTH/2, HEIGHT/2, 10, 3, col)
-
     // start interesting code here
+
+    mainContext := &MainContext{}
+    menuContext := &MenuContext{}
+    var context Context = mainContext
+    //context := []Context{&NullContext{}}
 
     origin := Point{0.0, 0.0, 0.0}
     me := NewObserver(
@@ -54,11 +56,17 @@ func run() {
         GRAVITY,
         0.0,
         math.Pi/2,
+        SENSITIVITY,
         &origin,
         false)
 
+    col := color.RGBA{128, 128, 128, 150}
+    cursor := NewCursor(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT, 35, 10, 3, col, 255, 150)
 
-    cubes := []*Cube{}
+    static := []StaticShape{}
+    dynamic := []DynamicShape{}
+    //meta := []MetaShape{}
+    //meta = append(meta, cursor)
     //for y:=-10;y<11;y+=6 {
     for y:=5;y<11;y+=6 {
         x := float64(20)
@@ -69,17 +77,23 @@ func run() {
             cube1 := NewCube(5, &p, colornames.Black)
             //cube2 := NewCube(5, &q)
             //cubes = append(cubes, cube1, cube2)
-            cubes = append(cubes, cube1)
+            static = append(static, cube1)
         }
 
     }
+
     circ := NewCircle(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
+    static = append(static, circ)
+
     bounce := NewBouncing(&Point{50.0, 30.0, 1.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
-    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
+    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 1, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
+
+    dynamic = append(dynamic, bounce)
+    dynamic = append(dynamic, fount)
 
     alice := colornames.Aliceblue
     bg := alice
-    inMenu := false
+    //inMenu := false
     //center := win.Bounds().Center()
 
     atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -96,174 +110,59 @@ func run() {
 
     menu := NewMenu(atlas, []string{"resume", "save", "exit"}, colornames.White, colornames.Orange)
 
+    var (
+        frames = 0
+        second = time.Tick(time.Second)
+    )
     last := time.Now()
     // looping update code
 	for !win.Closed() {
 		win.Clear(bg)
-        scoreMat := pixel.IM
-        scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(3,3))
-        scoreMat = scoreMat.Moved(pixel.V(20, 4*20))
-        dot := scoreTxt.Dot
-        scoreTxt.Clear()
-        scoreTxt.Dot = dot
-        scoreTxt.WriteString(fmt.Sprintf("score: %d\r", me.Score))
-        scoreTxt.Draw(win, scoreMat)
-
-        if win.JustPressed(pixelgl.KeyEscape) {
-            curMenu := inMenu
-            if curMenu {
-                bg = alice
-                inMenu = false
-            } else {
-                bg = colornames.Black
-                inMenu = true
-            }
-        }
-
-        if inMenu {
-            menu.Write()
-            if win.JustPressed(pixelgl.KeyEnter) {
-                switch menu.Active {
-                case 0:
-                    bg = alice
-                    inMenu = false
-                case 1:
-                    log.Println("Saving")
-                case 2:
-                    return
-                default:
-                    log.Println(menu.Active)
-                }
-
-            }
-            if win.JustPressed(pixelgl.KeyUp) {
-                menu.Up()
-            }
-
-            if win.JustPressed(pixelgl.KeyDown) {
-                menu.Down()
-            }
-
-            menuMat := pixel.IM
-            menuMat = menuMat.ScaledXY(pixel.ZV, pixel.V(2,2))
-            menuMat = menuMat.Moved(pixel.V(20, me.Height-2*20))
-
-            menu.Draw(win, menuMat)
-
-            // necessary
-            last = time.Now()
-            //win.SetMousePosition(center)
-            win.Update()
-            continue
-        }
-
-        mat := pixel.IM
-        mat = mat.ScaledXY(pixel.ZV, pixel.V(3,3))
-        mat = mat.Moved(pixel.V(20,me.Height-2*20))
-        txt.Draw(win, mat)
         dt := time.Since(last).Seconds()
         last = time.Now()
 
-        if win.Pressed(pixelgl.KeyUp) || win.Pressed(pixelgl.KeyW) {
-            me.Forward(dt)
-        }
 
-        if win.Pressed(pixelgl.KeyDown) || win.Pressed(pixelgl.KeyS) {
-            me.Backward(dt)
-        }
+        //scoreMat := pixel.IM
+        //scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(3,3))
+        //scoreMat = scoreMat.Moved(pixel.V(20, 4*20))
+        //dot := scoreTxt.Dot
+        //scoreTxt.Clear()
+        //scoreTxt.Dot = dot
+        //scoreTxt.WriteString(fmt.Sprintf("score: %d\r", me.Score))
+        //scoreTxt.Draw(win, scoreMat)
 
-        if win.Pressed(pixelgl.KeyLeft) || win.Pressed(pixelgl.KeyA) {
-            me.Left(dt)
-        }
-
-        if win.Pressed(pixelgl.KeyRight) || win.Pressed(pixelgl.KeyD) {
-            me.Right(dt)
-        }
-
-        if win.Pressed(pixelgl.KeyK) {
-            me.Ascend(dt)
-        }
-
-        if win.Pressed(pixelgl.KeyJ) {
-            me.Descend(dt)
-        }
-
-        if win.JustPressed(pixelgl.KeySpace) {
-            me.Jump()
-        }
-        me.Freefall(dt)
-
-        if win.JustPressed(pixelgl.MouseButtonLeft) {
-            me.Score += 1
-        }
-
-
-        if win.JustPressed(pixelgl.MouseButtonRight) {
-            if me.Locked {
-                me.Locked = false
+        if win.JustPressed(pixelgl.KeyEscape) {
+            if context == mainContext {
+                bg = colornames.Black
+                context = menuContext
             } else {
-                me.Locked = true
-            }
-
-        }
-        // align to mouse
-        prev := win.MousePreviousPosition()
-        pos := win.MousePosition()
-        //win.SetMousePosition(center)
-
-        // compute mouse distance traveled
-        dx := pos.X - prev.X
-        dy := pos.Y - prev.Y
-        if me.Locked {
-            cursor.Color.A = 255
-            cursor.X += dx*dt*100
-            cursor.Y += dy*dt*100
-            if cursor.X > me.Width {
-                cursor.X = me.Width
-            }
-            if cursor.X < 0 {
-                cursor.X = 0
-            }
-            if cursor.Y > me.Height {
-                cursor.Y = me.Height
-            }
-            if cursor.Y < 0 {
-                cursor.Y = 0
-            }
-        } else {
-            cursor.Color.A = 150
-
-            me.Theta -= dx*dt*SENSITIVITY
-            me.Phi -= dy*dt*SENSITIVITY
-            if me.Phi > math.Pi {
-                me.Phi = math.Pi
-            }
-            if me.Phi < 0 {
-                me.Phi = 0
+                bg = alice
+                context = mainContext
             }
         }
 
-        // draw things
+        //mat := pixel.IM
+        //mat = mat.ScaledXY(pixel.ZV, pixel.V(3,3))
+        //mat = mat.Moved(pixel.V(20,me.Height-2*20))
+        //txt.Draw(win, mat)
 
-        // cursor
-        cursor.Draw(win)
-
-        // cubes
-        for _,cube := range cubes {
-            cube.Draw(win, me)
+        e := NewEnvironment(me, win, cursor, menu, static, dynamic, dt)
+        code := context.Handle(e)
+        if code == HANDLED {
+            context = mainContext
+        } else if code == EXIT {
+            return
         }
 
-        // static circle
-        circ.Draw(win, me)
+        win.Update()
+        frames++
+        select {
+        case <-second:
+            win.SetTitle(fmt.Sprintf("%s | FPS: %d", cfg.Title, frames))
+            frames = 0
+        default:
+        }
 
-        // bouncing circle (dynamic)
-        bounce.Draw(win, me, dt)
-
-        // fountain (dynamic)
-        fount.Draw(win, me, dt)
-
-        // update
-		win.Update()
 	}
 }
 
