@@ -9,7 +9,7 @@ echo Buliding darwin/386
 GOOS=darwin GOARCH=386 CGO_ENABLED=1 CC=i386-apple-darwin15-clang go build -o bin/flexo-darwin-386
 
 echo Building linux/amd64
-go build
+go build -o bin/flexo-linux-amd64
 echo Building linux/386
 GOOS=linux GOARCH=386 CGO_ENABLED=1 go build -o bin/flexo-linux-386
 
