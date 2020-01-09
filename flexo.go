@@ -6,9 +6,6 @@ import (
     "time"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
-	"golang.org/x/image/colornames"
-    "golang.org/x/image/font/basicfont"
-    "github.com/faiface/pixel/text"
 )
 
 func run() {
@@ -28,19 +25,12 @@ func run() {
     win.DisableCursor()
     win.SetMousePosition(win.Bounds().Center())
 
-    // Atlas
-    atlas := text.NewAtlas(basicfont.Face7x13, text.ASCII)
-
     // Create contexts
-    // -- main context
-    mainContext := &MainContext{}
+    contexts := DefaultContexts()
 
-    // -- menu context
-    menu := NewMenu(atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
-    menuContext := NewMenuContext(menu)
-
-    // -- defualt context
-    var context Context = mainContext
+    // defualt context
+    var context Context = contexts["main"]
+    var savedContext Context = contexts["main"]
 
     // Create observer
     me := DefaultObserver()
@@ -51,6 +41,7 @@ func run() {
     // Placeholders for static and dynamic shapes
     static := DefaultStaticShapes()
     dynamic := DefaultDynamicShapes()
+    flat := DefaultFlatShapes()
 
     last := time.Now()
 
@@ -62,23 +53,35 @@ func run() {
 
         // ESC is a context switcher
         if win.JustPressed(pixelgl.KeyEscape) {
-            if context == mainContext {
-                context = menuContext
+            if context != contexts["menu"] {
+                // saved previous context
+                savedContext = context
+                // start menu context
+                context = contexts["menu"]
             } else {
-                context = mainContext
+                // load saved context
+                context = savedContext
+            }
+        }
+        if win.JustPressed(pixelgl.KeyC) {
+            if context == contexts["main"] {
+                savedContext = context
+                context = contexts["crafting"]
+            } else if context == contexts["crafting"] {
+                context = savedContext
             }
         }
 
         // Gather up the objects that are collectively known as the "environment"
         // pass it to the current context
-        e := NewEnvironment(me, win, cursor, static, dynamic, dt, atlas)
+        e := NewEnvironment(me, win, cursor, static, dynamic, flat, dt)
 
         // the main context should always return HANDLING
         // if any other context returns HANDLED, go back to the main context
         // if any context returns EXIT, then exit
         code := context.Handle(e)
         if code == HANDLED {
-            context = mainContext
+            context = contexts["main"]
         } else if code == EXIT {
             return
         }

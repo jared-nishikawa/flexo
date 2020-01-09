@@ -4,6 +4,8 @@ import (
     "math"
     "image/color"
 	"golang.org/x/image/colornames"
+    "golang.org/x/image/font/basicfont"
+    "github.com/faiface/pixel/text"
 )
 
 const FOV = math.Pi/3
@@ -61,7 +63,7 @@ func DefaultStaticShapes() []StaticShape {
         }
 
     }
-    circ := NewCircle(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
+    circ := NewSphere(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
     static = append(static, circ)
     return static
 }
@@ -76,5 +78,30 @@ func DefaultDynamicShapes() []DynamicShape {
     return dynamic
 }
 
+func DefaultFlatShapes() []FlatShape {
+    flat := []FlatShape{}
+    s := NewSquare(100, 400, 500, 5, colornames.Red)
+    c := NewCircle(500, 600, 200, 5, colornames.Green)
+    flat = append(flat, s, c)
+    return flat
+}
 
+func DefaultAtlas() *text.Atlas {
+    return text.NewAtlas(basicfont.Face7x13, text.ASCII)
+}
 
+func DefaultContexts() map[string]Context {
+    contexts := make(map[string]Context)
+    atlas := DefaultAtlas()
+
+    // main context
+    contexts["main"] = &MainContext{}
+
+    // menu context
+    menu := NewMenu(atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
+    contexts["menu"] = NewMenuContext(menu)
+
+    //crafting context
+    contexts["crafting"] = &CraftingContext{}
+    return contexts
+}

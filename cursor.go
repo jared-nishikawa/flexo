@@ -21,7 +21,18 @@ type Cursor struct {
 }
 
 func NewCursor(x, y, maxX, maxY, m, r, t float64, col color.RGBA, active, inactive byte) *Cursor {
-    return &Cursor{x, y, maxX, maxY, m, r, t, col, active, inactive}
+    cur := &Cursor{
+        X: x,
+        Y: y,
+        MaxX: maxX,
+        MaxY: maxY,
+        Multiplier: m,
+        Radius: r,
+        Thickness: t,
+        Color: col,
+        Active: active,
+        Inactive: inactive}
+    return cur
 }
 
 func (self *Cursor) SetActive() {

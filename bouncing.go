@@ -28,7 +28,7 @@ func (self *Bouncing) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
         self.Step = 0
     }
     newPos := &Point{self.Pos[0], self.Pos[1], z}
-    c := NewCircle(newPos, 0.5, self.Color)
+    c := NewSphere(newPos, 0.5, self.Color)
     self.Step += dt
     c.Draw(win, ob)
 }

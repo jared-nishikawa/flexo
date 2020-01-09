@@ -37,7 +37,7 @@ func (self *Particle) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
         self.Step = 0
     }
     newPos := &Point{x+dx, y+dy, z+dz}
-    c := NewCircle(newPos, 0.5, self.Color)
+    c := NewSphere(newPos, 0.5, self.Color)
     self.Step += dt
     c.Draw(win, ob)
 }

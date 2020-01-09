@@ -2,7 +2,9 @@ package main
 
 import (
     "fmt"
+    "image/color"
     "log"
+    "math"
     "github.com/faiface/pixel"
     "github.com/faiface/pixel/pixelgl"
     "golang.org/x/image/colornames"
@@ -36,28 +38,35 @@ func (self *MainContext) Handle(env *Environment) int {
     static := env.Static
     dynamic := env.Dynamic
     dt := env.Dt
+    atlas := DefaultAtlas()
 
-    txt := text.New(pixel.ZV, env.Atlas)
+    txt := text.New(pixel.ZV, atlas)
     txt.Color = colornames.Brown
     txt.WriteString("jump: [space]\n")
     txt.WriteString("move: [wasd] or arrow keys\n")
     txt.WriteString("toggle cursor: [right-click]\n")
     txt.WriteString("menu: [ESC]\n")
-    mat := pixel.IM
-    mat = mat.ScaledXY(pixel.ZV, pixel.V(3,3))
-    mat = mat.Moved(pixel.V(20,me.Height-2*20))
 
-    scoreTxt := text.New(pixel.ZV, env.Atlas)
+    //desired := me.Height/40
+    //scale := desired/h
+    //menuMat = menuMat.ScaledXY(pixel.ZV, pixel.V(scale,scale))
+    //menuMat = menuMat.Moved(pixel.V(h, me.Height-2*h))
+
+    mat := pixel.IM
+    desired := me.Height/40
+    scale := desired/atlas.LineHeight()
+    mat = mat.ScaledXY(pixel.ZV, pixel.V(scale,scale))
+    mat = mat.Moved(pixel.V(desired/2,me.Height-desired))
+
+    scoreTxt := text.New(pixel.ZV, atlas)
     scoreTxt.Color = colornames.Black
     scoreMat := pixel.IM
-    scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(3,3))
-    scoreMat = scoreMat.Moved(pixel.V(20, 4*20))
+    scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(scale,scale))
+    scoreMat = scoreMat.Moved(pixel.V(desired/2, 4*desired))
     dot := scoreTxt.Dot
     scoreTxt.Clear()
     scoreTxt.Dot = dot
     scoreTxt.WriteString(fmt.Sprintf("score: %d\r", me.Score))
-
-
 
     win.Clear(colornames.Aliceblue)
 
@@ -117,7 +126,7 @@ func (self *MainContext) Handle(env *Environment) int {
         cursor.Move(dx, dy, dt)
     } else {
         cursor.SetInactive()
-        cursor.Color.A = 150
+        //cursor.Color.A = 150
 
         me.Yaw(dx, dt)
         me.Pitch(dy, dt)
@@ -193,9 +202,71 @@ func (self *MenuContext) Handle(env *Environment) int {
     }
 
     menuMat := pixel.IM
-    menuMat = menuMat.ScaledXY(pixel.ZV, pixel.V(2,2))
-    menuMat = menuMat.Moved(pixel.V(20, me.Height-2*20))
+    desired := me.Height/40
+    scale := desired/menu.Atlas.LineHeight()
+    menuMat = menuMat.ScaledXY(pixel.ZV, pixel.V(scale,scale))
+    menuMat = menuMat.Moved(pixel.V(desired/2, me.Height-desired))
 
     menu.Draw(win, menuMat)
     return HANDLING
 }
+
+type CraftingContext struct {
+}
+
+func (self *CraftingContext) Handle(env *Environment) int {
+    //me := env.Observer
+    win := env.Window
+    cursor := env.Cursor
+    //static := env.Static
+    //dynamic := env.Dynamic
+    dt := env.Dt
+    cursor.SetActive()
+    flat := env.Flat
+
+    win.Clear(color.RGBA{100,100,200,255})
+
+    // align to mouse
+    prev := win.MousePreviousPosition()
+    pos := win.MousePosition()
+
+    // compute mouse distance traveled
+    dx := pos.X - prev.X
+    dy := pos.Y - prev.Y
+
+    old_x := cursor.X
+    old_y := cursor.Y
+
+    cursor.Move(dx, dy, dt)
+    x := cursor.X
+    y := cursor.Y
+
+    for _,s := range flat {
+        if win.Pressed(pixelgl.MouseButtonLeft) {
+            sx,sy := s.Center()
+            dst_x := old_x-sx
+            dst_y := old_y-sy
+            d := math.Sqrt(math.Pow(dst_x,2) + math.Pow(dst_y,2))
+            if d < sx - s.GetX()  {
+                if win.JustPressed(pixelgl.MouseButtonLeft) {
+                    s.SetDragging(true)
+                }
+                if s.GetDragging() {
+                    s.SetLoc(s.GetX()+(x-old_x), s.GetY()+(y-old_y))
+                }
+            }
+        } else {
+            s.SetDragging(false)
+        }
+    }
+
+
+
+    for _,s := range flat {
+        s.Draw(win)
+    }
+    cursor.Draw(win)
+    return HANDLING
+
+}
+
