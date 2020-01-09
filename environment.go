@@ -2,6 +2,7 @@ package main
 
 import (
     "github.com/faiface/pixel/pixelgl"
+    "github.com/faiface/pixel/text"
 )
 
 type MetaShape interface {
@@ -20,13 +21,13 @@ type Environment struct {
     Observer *Observer
     Window *pixelgl.Window
     Cursor *Cursor
-    Menu *Menu
     Static []StaticShape
     Dynamic []DynamicShape
     Dt float64
+    Atlas *text.Atlas
 }
 
-func NewEnvironment(ob *Observer, win *pixelgl.Window, cursor *Cursor, menu *Menu, static []StaticShape, dynamic []DynamicShape, dt float64) *Environment {
-    return &Environment{ob, win, cursor, menu, static, dynamic, dt}
+func NewEnvironment(ob *Observer, win *pixelgl.Window, cursor *Cursor, static []StaticShape, dynamic []DynamicShape, dt float64, atlas *text.Atlas) *Environment {
+    return &Environment{ob, win, cursor, static, dynamic, dt, atlas}
 }
 

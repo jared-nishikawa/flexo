@@ -1,9 +1,12 @@
 package main
 
 import (
+    "fmt"
     "log"
     "github.com/faiface/pixel"
     "github.com/faiface/pixel/pixelgl"
+    "golang.org/x/image/colornames"
+    "github.com/faiface/pixel/text"
 )
 
 const (
@@ -33,6 +36,31 @@ func (self *MainContext) Handle(env *Environment) int {
     static := env.Static
     dynamic := env.Dynamic
     dt := env.Dt
+
+    txt := text.New(pixel.ZV, env.Atlas)
+    txt.Color = colornames.Brown
+    txt.WriteString("jump: [space]\n")
+    txt.WriteString("move: [wasd] or arrow keys\n")
+    txt.WriteString("toggle cursor: [right-click]\n")
+    txt.WriteString("menu: [ESC]\n")
+    mat := pixel.IM
+    mat = mat.ScaledXY(pixel.ZV, pixel.V(3,3))
+    mat = mat.Moved(pixel.V(20,me.Height-2*20))
+
+    scoreTxt := text.New(pixel.ZV, env.Atlas)
+    scoreTxt.Color = colornames.Black
+    scoreMat := pixel.IM
+    scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(3,3))
+    scoreMat = scoreMat.Moved(pixel.V(20, 4*20))
+    dot := scoreTxt.Dot
+    scoreTxt.Clear()
+    scoreTxt.Dot = dot
+    scoreTxt.WriteString(fmt.Sprintf("score: %d\r", me.Score))
+
+
+
+    win.Clear(colornames.Aliceblue)
+
     if win.Pressed(pixelgl.KeyUp) || win.Pressed(pixelgl.KeyW) {
         me.Forward(dt)
     }
@@ -98,9 +126,6 @@ func (self *MainContext) Handle(env *Environment) int {
 
     // draw things
 
-    // cursor
-    cursor.Draw(win)
-
     // static shapes
     for _,shape := range static {
         shape.Draw(win, me)
@@ -111,34 +136,48 @@ func (self *MainContext) Handle(env *Environment) int {
         shape.Draw(win, me, dt)
     }
 
+    // cursor
+    cursor.Draw(win)
+
+    // text
+    txt.Draw(win, mat)
+    scoreTxt.Draw(win, scoreMat)
+
     // main context always returns handling
     return HANDLING
 
 }
 
-
 type MenuContext struct {
+    Menu *Menu
+}
+
+func NewMenuContext(menu *Menu) *MenuContext {
+    return &MenuContext{menu}
 }
 
 func (self *MenuContext) Handle(env *Environment) int {
+
     me := env.Observer
     win := env.Window
     //cursor := env.Cursor
     //static := env.Static
     //dynamic := env.Dynamic
     //dt := env.Dt
-    menu := env.Menu
+    menu := self.Menu
+
+    win.Clear(colornames.Black)
     menu.Write()
 
     if win.JustPressed(pixelgl.KeyEnter) {
         switch menu.Active {
         case 0:
             return HANDLED
-            //bg = alice
-            //inMenu = false
         case 1:
             log.Println("Saving")
         case 2:
+            log.Println("Options")
+        case 3:
             return EXIT
         default:
             log.Println(menu.Active)
