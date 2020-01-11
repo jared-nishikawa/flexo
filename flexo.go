@@ -41,11 +41,14 @@ func run() {
     // Placeholders for static and dynamic shapes
     static := DefaultStaticShapes()
     dynamic := DefaultDynamicShapes()
-    flat := DefaultFlatShapes()
+    movable := DefaultMovableShapes()
+    immovable := DefaultImmovableShapes()
+    templates := DefaultTemplates()
+    //flat := DefaultFlatShapes()
 
     // Gather up the objects that are collectively known as the "environment"
     // will be passed to the context for handling
-    env := NewEnvironment(me, win, cursor, static, dynamic, flat, 0)
+    env := NewEnvironment(me, win, cursor, static, dynamic, movable, immovable, templates, 0)
 
     last := time.Now()
 

@@ -15,7 +15,9 @@ type FlatShape interface {
     SetLoc(x, y float64)
     Center() (float64, float64)
     Draw(win *pixelgl.Window)
+    Contains(x, y float64) bool
     Snap()
+    Copy() FlatShape
 }
 
 type Rectangle struct {
@@ -52,8 +54,16 @@ func (self *Rectangle) SetDragging(b bool) {
     self.Dragging = b
 }
 
+func (self *Rectangle) Contains(x, y float64) bool {
+    return (x > self.X) && (x < self.X+self.Width) && (y > self.Y) && (y < self.Y + self.Height)
+}
+
 func (self *Rectangle) Center() (float64, float64) {
     return self.X + self.Width/2, self.Y + self.Height/2
+}
+
+func (self *Rectangle) Copy() FlatShape {
+    return NewRectangle(self.Width, self.Height, self.X, self.Y, self.Thickness, self.Color)
 }
 
 func (self *Rectangle) Draw(win *pixelgl.Window) {

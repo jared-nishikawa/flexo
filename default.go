@@ -86,6 +86,33 @@ func DefaultFlatShapes() []FlatShape {
     return flat
 }
 
+func DefaultImmovableShapes() []FlatShape {
+    immov := []FlatShape{}
+    left := NewRectangle(300, 1080, 0, 0, 0, color.RGBA{200, 200, 200, 255})
+    immov = append(immov, left)
+    return immov
+}
+
+func DefaultTemplates() []FlatShape {
+    templates := []FlatShape{}
+    hydrogen := NewSquare(50, 150, 800, 0, colornames.Blue)
+    oxygen := NewSquare(50, 150, 700, 0, colornames.Green)
+    nitrogen := NewSquare(50, 150, 600, 0, colornames.Black)
+    carbon := NewSquare(50, 150, 500, 0, colornames.Red)
+
+    hydrogen.Snap()
+    oxygen.Snap()
+    nitrogen.Snap()
+    carbon.Snap()
+
+    templates = append(templates, hydrogen, oxygen, nitrogen, carbon)
+    return templates
+}
+
+func DefaultMovableShapes() []FlatShape {
+    return []FlatShape{}
+}
+
 func DefaultAtlas() *text.Atlas {
     return text.NewAtlas(basicfont.Face7x13, text.ASCII)
 }

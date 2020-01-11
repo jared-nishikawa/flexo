@@ -22,11 +22,13 @@ type Environment struct {
     Cursor *Cursor
     Static []StaticShape
     Dynamic []DynamicShape
-    Flat []FlatShape
+    Movable []FlatShape
+    Immovable []FlatShape
+    Templates []FlatShape
     Dt float64
 }
 
-func NewEnvironment(ob *Observer, win *pixelgl.Window, cursor *Cursor, static []StaticShape, dynamic []DynamicShape, flat []FlatShape, dt float64) *Environment {
-    return &Environment{ob, win, cursor, static, dynamic, flat, dt}
+func NewEnvironment(ob *Observer, win *pixelgl.Window, cursor *Cursor, static []StaticShape, dynamic []DynamicShape, movable, immovable, templates []FlatShape, dt float64) *Environment {
+    return &Environment{ob, win, cursor, static, dynamic, movable, immovable, templates, dt}
 }
 

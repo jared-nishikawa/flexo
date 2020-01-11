@@ -4,7 +4,7 @@ import (
     "fmt"
     "image/color"
     "log"
-    "math"
+//    "math"
     "github.com/faiface/pixel"
     "github.com/faiface/pixel/pixelgl"
     "golang.org/x/image/colornames"
@@ -222,7 +222,9 @@ func (self *CraftingContext) Handle(env *Environment) int {
     //dynamic := env.Dynamic
     dt := env.Dt
     cursor.SetActive()
-    flat := env.Flat
+    movable := env.Movable
+    immov := env.Immovable
+    templates := env.Templates
 
     win.Clear(color.RGBA{0xff,0xf9,0xf9,255})
 
@@ -241,26 +243,32 @@ func (self *CraftingContext) Handle(env *Environment) int {
     x := cursor.X
     y := cursor.Y
 
-    if win.JustPressed(pixelgl.MouseButtonRight) {
-        side := 50.0
-        s := NewSquare(side, old_x-side/2, old_y-side/2, 5, colornames.Red)
-        flat = append(flat, s)
-        env.Flat = flat
+    for _,s := range templates {
+        if win.JustPressed(pixelgl.MouseButtonLeft) && s.Contains(old_x, old_y) {
+            //side := 50.0
+            //sq := NewSquare(side, old_x-side/2, old_y-side/2, 5, colornames.Red)
+            sq := s.Copy()
+            movable = append(movable, sq)
+            env.Movable = movable
+        }
     }
 
-    for _,s := range flat {
+    for i,s := range movable {
         if win.Pressed(pixelgl.MouseButtonLeft) {
-            sx,sy := s.Center()
-            dst_x := old_x-sx
-            dst_y := old_y-sy
-            d := math.Sqrt(math.Pow(dst_x,2) + math.Pow(dst_y,2))
-            if d < sx - s.GetX()  {
+            if s.Contains(old_x, old_y) {
                 if win.JustPressed(pixelgl.MouseButtonLeft) {
                     s.SetDragging(true)
                 }
+
                 if s.GetDragging() {
                     s.SetLoc(s.GetX()+(x-old_x), s.GetY()+(y-old_y))
                 }
+            }
+        } else if win.JustPressed(pixelgl.MouseButtonRight) {
+            if s.Contains(old_x, old_y) {
+                movable = append(movable[:i], movable[i+1:]...)
+                env.Movable = movable
+                s = nil
             }
         } else {
             s.Snap()
@@ -270,7 +278,15 @@ func (self *CraftingContext) Handle(env *Environment) int {
 
 
 
-    for _,s := range flat {
+    for _,s := range immov {
+        s.Draw(win)
+    }
+
+    for _,s := range templates {
+        s.Draw(win)
+    }
+
+    for _,s := range movable {
         s.Draw(win)
     }
     cursor.Draw(win)
