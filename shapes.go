@@ -15,6 +15,7 @@ type FlatShape interface {
     SetLoc(x, y float64)
     Center() (float64, float64)
     Draw(win *pixelgl.Window)
+    Snap()
 }
 
 type Rectangle struct {
@@ -75,6 +76,11 @@ func (self *Rectangle) SetLoc(x, y float64) {
     self.Y = y
 }
 
+func (self *Rectangle) Snap() {
+    self.X = float64(int(self.X/50 + 0.5)*50)
+    self.Y = float64(int(self.Y/50 + 0.5)*50)
+}
+
 
 type Circle struct {
     X float64
@@ -125,4 +131,6 @@ func (self *Circle) Draw(win *pixelgl.Window) {
     imd.Draw(win)
 }
 
+func (self *Circle) Snap() {
+}
 

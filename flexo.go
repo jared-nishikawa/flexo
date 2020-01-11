@@ -43,6 +43,10 @@ func run() {
     dynamic := DefaultDynamicShapes()
     flat := DefaultFlatShapes()
 
+    // Gather up the objects that are collectively known as the "environment"
+    // will be passed to the context for handling
+    env := NewEnvironment(me, win, cursor, static, dynamic, flat, 0)
+
     last := time.Now()
 
     // looping update code
@@ -72,14 +76,14 @@ func run() {
             }
         }
 
-        // Gather up the objects that are collectively known as the "environment"
-        // pass it to the current context
-        e := NewEnvironment(me, win, cursor, static, dynamic, flat, dt)
+        // adjust env variables
+        env.Cursor = cursor
+        env.Dt = dt
 
         // the main context should always return HANDLING
         // if any other context returns HANDLED, go back to the main context
         // if any context returns EXIT, then exit
-        code := context.Handle(e)
+        code := context.Handle(env)
         if code == HANDLED {
             context = contexts["main"]
         } else if code == EXIT {

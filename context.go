@@ -224,7 +224,7 @@ func (self *CraftingContext) Handle(env *Environment) int {
     cursor.SetActive()
     flat := env.Flat
 
-    win.Clear(color.RGBA{100,100,200,255})
+    win.Clear(color.RGBA{0xff,0xf9,0xf9,255})
 
     // align to mouse
     prev := win.MousePreviousPosition()
@@ -241,6 +241,13 @@ func (self *CraftingContext) Handle(env *Environment) int {
     x := cursor.X
     y := cursor.Y
 
+    if win.JustPressed(pixelgl.MouseButtonRight) {
+        side := 50.0
+        s := NewSquare(side, old_x-side/2, old_y-side/2, 5, colornames.Red)
+        flat = append(flat, s)
+        env.Flat = flat
+    }
+
     for _,s := range flat {
         if win.Pressed(pixelgl.MouseButtonLeft) {
             sx,sy := s.Center()
@@ -256,6 +263,7 @@ func (self *CraftingContext) Handle(env *Environment) int {
                 }
             }
         } else {
+            s.Snap()
             s.SetDragging(false)
         }
     }

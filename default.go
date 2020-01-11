@@ -80,9 +80,9 @@ func DefaultDynamicShapes() []DynamicShape {
 
 func DefaultFlatShapes() []FlatShape {
     flat := []FlatShape{}
-    s := NewSquare(100, 400, 500, 5, colornames.Red)
-    c := NewCircle(500, 600, 200, 5, colornames.Green)
-    flat = append(flat, s, c)
+    //s := NewSquare(100, 400, 500, 5, colornames.Red)
+    //c := NewCircle(500, 600, 200, 5, colornames.Green)
+    //flat = append(flat, s, c)
     return flat
 }
 
