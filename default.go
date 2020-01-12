@@ -95,17 +95,19 @@ func DefaultImmovableShapes() []FlatShape {
 
 func DefaultTemplates() []FlatShape {
     templates := []FlatShape{}
-    hydrogen := NewSquare(50, 150, 800, 0, colornames.Blue)
-    oxygen := NewSquare(50, 150, 700, 0, colornames.Green)
-    nitrogen := NewSquare(50, 150, 600, 0, colornames.Black)
-    carbon := NewSquare(50, 150, 500, 0, colornames.Red)
+    hydrogen := NewHydrogen(50, 150, 800, 0, colornames.White)
+    oxygenA := NewOxygenA(50, 150, 700, 0, colornames.Green)
+    oxygenB := NewOxygenB(50, 150, 600, 0, colornames.Green)
+    nitrogen := NewNitrogen(50, 150, 500, 0, colornames.Red)
+    carbon := NewCarbon(50, 150, 400, 0, colornames.Blue)
 
     hydrogen.Snap()
-    oxygen.Snap()
+    oxygenA.Snap()
+    oxygenB.Snap()
     nitrogen.Snap()
     carbon.Snap()
 
-    templates = append(templates, hydrogen, oxygen, nitrogen, carbon)
+    templates = append(templates, hydrogen, oxygenA, oxygenB, nitrogen, carbon)
     return templates
 }
 

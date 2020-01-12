@@ -226,7 +226,8 @@ func (self *CraftingContext) Handle(env *Environment) int {
     immov := env.Immovable
     templates := env.Templates
 
-    win.Clear(color.RGBA{0xff,0xf9,0xf9,255})
+    //win.Clear(color.RGBA{0xff,0xf9,0xf9,255})
+    win.Clear(color.RGBA{0x60,0x60,0x70,255})
 
     // align to mouse
     prev := win.MousePreviousPosition()
@@ -254,6 +255,10 @@ func (self *CraftingContext) Handle(env *Environment) int {
     }
 
     for i,s := range movable {
+        if win.JustPressed(pixelgl.KeyR) && s.Contains(old_x, old_y) {
+            s.Rotate()
+        }
+
         if win.Pressed(pixelgl.MouseButtonLeft) {
             if s.Contains(old_x, old_y) {
                 if win.JustPressed(pixelgl.MouseButtonLeft) {
@@ -266,6 +271,8 @@ func (self *CraftingContext) Handle(env *Environment) int {
             }
         } else if win.JustPressed(pixelgl.MouseButtonRight) {
             if s.Contains(old_x, old_y) {
+                // problems when there's two shapes on top of each other
+                log.Println(i, len(movable))
                 movable = append(movable[:i], movable[i+1:]...)
                 env.Movable = movable
                 s = nil
@@ -274,6 +281,7 @@ func (self *CraftingContext) Handle(env *Environment) int {
             s.Snap()
             s.SetDragging(false)
         }
+
     }
 
 
