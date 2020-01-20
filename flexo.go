@@ -2,6 +2,7 @@ package main
 
 import (
     "fmt"
+    "image/color"
     "log"
     "time"
 	"github.com/faiface/pixel"
@@ -28,9 +29,8 @@ func run() {
     // Create contexts
     contexts := DefaultContexts()
 
-    // defualt context
-    var context Context = contexts["main"]
-    var savedContext Context = contexts["main"]
+    // Context switcher
+    cs := NewContextSwitcher(contexts)
 
     // Create observer
     me := DefaultObserver()
@@ -50,6 +50,9 @@ func run() {
     // will be passed to the context for handling
     env := NewEnvironment(me, win, cursor, static, dynamic, movable, immovable, templates, 0)
 
+    pos := &Point{me.Pos[0]+10, me.Pos[1], me.Pos[2]-3}
+    c := NewCube(2, pos, color.RGBA{0xff, 0, 0, 0x7f})
+
     last := time.Now()
 
     // looping update code
@@ -58,26 +61,8 @@ func run() {
         dt := time.Since(last).Seconds()
         last = time.Now()
 
-        // ESC is a context switcher
-        if win.JustPressed(pixelgl.KeyEscape) {
-            if context != contexts["menu"] {
-                // saved previous context
-                savedContext = context
-                // start menu context
-                context = contexts["menu"]
-            } else {
-                // load saved context
-                context = savedContext
-            }
-        }
-        if win.JustPressed(pixelgl.KeyC) {
-            if context == contexts["main"] {
-                savedContext = context
-                context = contexts["crafting"]
-            } else if context == contexts["crafting"] {
-                context = savedContext
-            }
-        }
+        // handle context switching
+        cs.Switch(win)
 
         // adjust env variables
         env.Cursor = cursor
@@ -86,12 +71,15 @@ func run() {
         // the main context should always return HANDLING
         // if any other context returns HANDLED, go back to the main context
         // if any context returns EXIT, then exit
-        code := context.Handle(env)
+        code := cs.Current().Handle(env)
         if code == HANDLED {
-            context = contexts["main"]
+            cs.PopMenu()
+            //cs.Current = cs.Contexts["main"]
         } else if code == EXIT {
             return
         }
+
+        c.Draw(win, me)
 
         // And update
         win.Update()

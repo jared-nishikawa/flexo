@@ -71,10 +71,10 @@ func DefaultStaticShapes() []StaticShape {
 func DefaultDynamicShapes() []DynamicShape {
     dynamic := []DynamicShape{}
     bounce := NewBouncing(&Point{50.0, 30.0, 1.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
-    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
+    //fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
 
     dynamic = append(dynamic, bounce)
-    dynamic = append(dynamic, fount)
+    //dynamic = append(dynamic, fount)
     return dynamic
 }
 
