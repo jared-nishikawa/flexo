@@ -50,19 +50,7 @@ func (self *ContextSwitcher) Switch(win *pixelgl.Window) {
         //l = len(self.Stack)
         //self.Current = self.Stack[0]
     }
-    /*
-    if win.JustPressed(pixelgl.KeyEscape) {
-        if self.Current != self.Contexts["menu"] {
-            // saved previous context
-            self.Saved = self.Current
-            // start menu context
-            self.Current = self.Contexts["menu"]
-        } else {
-            // load saved context
-            self.Current = self.Saved
-        }
-    }
-    */
+
     if win.JustPressed(pixelgl.KeyC) {
         if self.Current() == self.Contexts["main"] {
             self.Stack = append([]Context{self.Contexts["crafting"]}, self.Stack...)

@@ -169,10 +169,6 @@ func (self *MenuContext) Handle(env *Environment) int {
 
     me := env.Observer
     win := env.Window
-    //cursor := env.Cursor
-    //static := env.Static
-    //dynamic := env.Dynamic
-    //dt := env.Dt
     menu := self.Menu
 
     win.Clear(colornames.Black)
