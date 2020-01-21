@@ -1,6 +1,7 @@
 package main
 
 import (
+    "log"
     "math"
     "image/color"
 	"golang.org/x/image/colornames"
@@ -9,8 +10,8 @@ import (
 )
 
 const FOV = math.Pi/3
-const WIDTH = 1920.0
-//const WIDTH = 800.0
+//const WIDTH = 1920.0
+const WIDTH = 800.0
 const HEIGHT = 1080.0
 //const HEIGHT = 600.0
 const GRAVITY = -50
@@ -127,7 +128,35 @@ func DefaultContexts() map[string]Context {
     contexts["main"] = &MainContext{}
 
     // menu context
-    menu := NewMenu(atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
+    menu := NewMenu(nil, "root", atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
+    menu.Handle = func(num int) (*Menu, int) {
+        switch num {
+        case 0:
+            return menu, HANDLED
+        case 2:
+            return menu.Children[menu.Options[num]], HANDLING
+
+        case 3:
+            return nil, EXIT
+        default:
+            log.Println(menu.Options[num])
+            return menu, HANDLING
+        }}
+    opts := NewMenu(menu, "options", atlas, []string{"resolution"}, colornames.White, colornames.Orange)
+    opts.Handle = func(num int) (*Menu, int) {
+        switch num {
+        default:
+            log.Println(opts.Options[num])
+            return opts.Children[opts.Options[num]], HANDLING
+        }}
+    res := NewMenu(opts, "resolution", atlas, []string{"640x480", "800x600", "1024x768", "1920x1080"}, colornames.White, colornames.Orange)
+    res.Handle = func(num int) (*Menu, int) {
+        switch num {
+        default:
+            log.Println(res.Options[num])
+            return res, HANDLING
+        }}
+
     contexts["menu"] = NewMenuContext(menu)
 
     //crafting context
