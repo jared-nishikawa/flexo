@@ -61,9 +61,6 @@ func run() {
         dt := time.Since(last).Seconds()
         last = time.Now()
 
-        // handle context switching
-        cs.Switch(win)
-
         // adjust env variables
         env.Cursor = cursor
         env.Dt = dt
@@ -78,6 +75,9 @@ func run() {
         } else if code == EXIT {
             return
         }
+
+        // handle context switching
+        cs.Switch(win)
 
         c.Draw(win, me)
 

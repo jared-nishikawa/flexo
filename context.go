@@ -19,9 +19,14 @@ const (
 
 type Context interface {
     Handle(env *Environment) int
+    HandleEscape() bool
 }
 
 type NullContext struct {
+}
+
+func (self *NullContext) HandleEscape() bool {
+    return false
 }
 
 func (self *NullContext) Handle(env *Environment) int {
@@ -29,6 +34,10 @@ func (self *NullContext) Handle(env *Environment) int {
 }
 
 type MainContext struct {
+}
+
+func (self *MainContext) HandleEscape() bool {
+    return false
 }
 
 func (self *MainContext) Handle(env *Environment) int {
@@ -165,6 +174,15 @@ func NewMenuContext(menu *Menu) *MenuContext {
     return &MenuContext{menu}
 }
 
+func (self *MenuContext) HandleEscape() bool {
+    menu := self.Menu
+    if menu.Root != nil {
+        self.Menu = menu.Root
+        return true
+    }
+    return false
+}
+
 func (self *MenuContext) Handle(env *Environment) int {
 
     me := env.Observer
@@ -174,21 +192,20 @@ func (self *MenuContext) Handle(env *Environment) int {
     win.Clear(colornames.Black)
     menu.Write()
 
+    /*
     if win.JustPressed(pixelgl.KeyEnter) {
         switch menu.Active {
         case 0:
             return HANDLED
-        case 1:
-            log.Println("Saving")
-        case 2:
-            log.Println("Options")
         case 3:
             return EXIT
         default:
-            log.Println(menu.Active)
+            log.Println(menu.Options[menu.Active])
         }
 
     }
+    */
+
     if win.JustPressed(pixelgl.KeyUp) {
         menu.Up()
     }
@@ -204,10 +221,20 @@ func (self *MenuContext) Handle(env *Environment) int {
     menuMat = menuMat.Moved(pixel.V(desired/2, me.Height-desired))
 
     menu.Draw(win, menuMat)
+    if win.JustPressed(pixelgl.KeyEnter) {
+        m, code := menu.Handle(menu.Active, env)
+        self.Menu = m
+        return code
+    }
     return HANDLING
+    //return HANDLING
 }
 
 type CraftingContext struct {
+}
+
+func (self *CraftingContext) HandleEscape() bool {
+    return false
 }
 
 func (self *CraftingContext) Handle(env *Environment) int {
