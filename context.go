@@ -226,7 +226,7 @@ func (self *MenuContext) Handle(env *Environment) int {
 
     menu.Draw(win, menuMat)
     if win.JustPressed(pixelgl.KeyEnter) {
-        m, code := menu.Handle(menu.Active)
+        m, code := menu.Handle(menu.Active, env)
         self.Menu = m
         return code
     }

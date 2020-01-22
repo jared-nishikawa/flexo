@@ -17,7 +17,7 @@ type Menu struct {
     Atlas *text.Atlas
     Text *text.Text
     Children map[string]*Menu
-    Handle func(int) (*Menu, int)
+    Handle func(int, *Environment) (*Menu, int)
 }
 
 func NewMenu(root *Menu, label string, atlas *text.Atlas, options []string, color, activeColor color.RGBA) *Menu {

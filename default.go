@@ -7,11 +7,12 @@ import (
 	"golang.org/x/image/colornames"
     "golang.org/x/image/font/basicfont"
     "github.com/faiface/pixel/text"
+    "github.com/faiface/pixel"
 )
 
 const FOV = math.Pi/3
-//const WIDTH = 1920.0
-const WIDTH = 800.0
+const WIDTH = 1920.0
+//const WIDTH = 800.0
 const HEIGHT = 1080.0
 //const HEIGHT = 600.0
 const GRAVITY = -50
@@ -129,7 +130,7 @@ func DefaultContexts() map[string]Context {
 
     // menu context
     menu := NewMenu(nil, "root", atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
-    menu.Handle = func(num int) (*Menu, int) {
+    menu.Handle = func(num int, env *Environment) (*Menu, int) {
         switch num {
         case 0:
             return menu, HANDLED
@@ -143,19 +144,48 @@ func DefaultContexts() map[string]Context {
             return menu, HANDLING
         }}
     opts := NewMenu(menu, "options", atlas, []string{"resolution"}, colornames.White, colornames.Orange)
-    opts.Handle = func(num int) (*Menu, int) {
+    opts.Handle = func(num int, env *Environment) (*Menu, int) {
         switch num {
         default:
             log.Println(opts.Options[num])
             return opts.Children[opts.Options[num]], HANDLING
         }}
     res := NewMenu(opts, "resolution", atlas, []string{"640x480", "800x600", "1024x768", "1920x1080"}, colornames.White, colornames.Orange)
-    res.Handle = func(num int) (*Menu, int) {
+    res.Handle = func(num int, env *Environment) (*Menu, int) {
+        win := env.Window
+        ob := env.Observer
+        cur := env.Cursor
+        h := 0.0
+        w := 0.0
         switch num {
+        case 0:
+            h = 480.0
+            w = 640.0
+            //return res, HANDLING
+        case 1:
+            h = 600
+            w = 800
+        case 2:
+            h = 768
+            w = 1024
+        case 3:
+            h = 1080
+            w = 1920
         default:
             log.Println(res.Options[num])
             return res, HANDLING
-        }}
+        }
+        win.SetBounds(pixel.R(0,0,w, h))
+        ob.Width = w
+        ob.Height = h
+        ob.VFov = h/w * ob.HFov
+        cur.X = w/2
+        cur.Y = h/2
+        cur.MaxX = w
+        cur.MaxY = h
+        return res, HANDLING
+
+        }
 
     contexts["menu"] = NewMenuContext(menu)
 
