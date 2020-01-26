@@ -3,7 +3,6 @@ package main
 import (
     "image/color"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
     "github.com/faiface/pixel/text"
 )
 
@@ -51,7 +50,7 @@ func (self *Menu) Write() {
     self.Text = optText
 }
 
-func (self *Menu) Draw(win *pixelgl.Window, mat pixel.Matrix) {
+func (self *Menu) Draw(win pixel.Target, mat pixel.Matrix) {
     self.Text.Draw(win, mat)
 }
 

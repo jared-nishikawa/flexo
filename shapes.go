@@ -4,7 +4,6 @@ import (
     "image/color"
 	"github.com/faiface/pixel"
     "github.com/faiface/pixel/imdraw"
-	"github.com/faiface/pixel/pixelgl"
 )
 
 type FlatShape interface {
@@ -14,7 +13,7 @@ type FlatShape interface {
     SetDragging(b bool)
     SetLoc(x, y float64)
     Center() (float64, float64)
-    Draw(win *pixelgl.Window)
+    Draw(win pixel.Target)
     Contains(x, y float64) bool
     Rotate()
     Snap()
@@ -26,7 +25,7 @@ type Atom struct {
     *Rectangle
 }
 
-func (self *Atom) Draw(win *pixelgl.Window) {
+func (self *Atom) Draw(win pixel.Target) {
     cfg := self.Cfg
     self.Rectangle.Draw(win)
     col := color.RGBA{0x0, 0xff, 0xff, 0xff}
@@ -62,7 +61,7 @@ type Carbon struct {
     *Atom
 }
 
-func (self *Carbon) Draw(win *pixelgl.Window) {
+func (self *Carbon) Draw(win pixel.Target) {
     self.Atom.Draw(win)
 }
 
@@ -78,7 +77,7 @@ type Hydrogen struct {
     *Atom
 }
 
-func (self *Hydrogen) Draw(win *pixelgl.Window) {
+func (self *Hydrogen) Draw(win pixel.Target) {
     self.Atom.Draw(win)
 }
 
@@ -94,7 +93,7 @@ type Nitrogen struct {
     *Atom
 }
 
-func (self *Nitrogen) Draw(win *pixelgl.Window) {
+func (self *Nitrogen) Draw(win pixel.Target) {
     self.Atom.Draw(win)
 }
 
@@ -110,7 +109,7 @@ type OxygenA struct {
     *Atom
 }
 
-func (self *OxygenA) Draw(win *pixelgl.Window) {
+func (self *OxygenA) Draw(win pixel.Target) {
     self.Atom.Draw(win)
 }
 
@@ -126,7 +125,7 @@ type OxygenB struct {
     *Atom
 }
 
-func (self *OxygenB) Draw(win *pixelgl.Window) {
+func (self *OxygenB) Draw(win pixel.Target) {
     self.Atom.Draw(win)
 }
 
@@ -187,7 +186,7 @@ func (self *Rectangle) Copy() FlatShape {
     return NewRectangle(self.Width, self.Height, self.X, self.Y, self.Thickness, self.Color)
 }
 
-func (self *Rectangle) Draw(win *pixelgl.Window) {
+func (self *Rectangle) Draw(win pixel.Target) {
     w := self.Width
     h := self.Height
     x := self.X
@@ -253,7 +252,7 @@ func (self *Circle) SetLoc(x, y float64) {
     self.Y = y
 }
 
-func (self *Circle) Draw(win *pixelgl.Window) {
+func (self *Circle) Draw(win pixel.Target) {
     imd := imdraw.New(nil)
     imd.Color = self.Color
     imd.Push(pixel.V(self.X,self.Y))

@@ -43,6 +43,7 @@ func (self *MainContext) HandleEscape() bool {
 func (self *MainContext) Handle(env *Environment) int {
     me := env.Observer
     win := env.Window
+    bat := env.Batch
     cursor := env.Cursor
     static := env.Static
     dynamic := env.Dynamic
@@ -108,8 +109,16 @@ func (self *MainContext) Handle(env *Environment) int {
     }
     me.Freefall(dt)
 
-    if win.JustPressed(pixelgl.MouseButtonLeft) {
+    p := me.Hand()
+    cube := NewCube(2, p, color.RGBA{0xff, 0, 0, 0x7f})
+    cube.Draw(bat, me)
+
+    //if win.JustPressed(pixelgl.MouseButtonLeft) {
+    if win.Pressed(pixelgl.MouseButtonLeft) {
         me.Score += 1
+        cube = NewCube(2, p, colornames.Green)
+        env.Static = append(env.Static, cube)
+
     }
 
     if win.JustPressed(pixelgl.MouseButtonRight) {
@@ -146,16 +155,16 @@ func (self *MainContext) Handle(env *Environment) int {
 
     // static shapes
     for _,shape := range static {
-        shape.Draw(win, me)
+        shape.Draw(bat, me)
     }
 
     // dynamic shapes
     for _,shape := range dynamic {
-        shape.Draw(win, me, dt)
+        shape.Draw(bat, me, dt)
     }
 
     // cursor
-    cursor.Draw(win)
+    cursor.Draw(bat)
 
     // text
     txt.Draw(win, mat)
@@ -240,6 +249,7 @@ func (self *CraftingContext) HandleEscape() bool {
 func (self *CraftingContext) Handle(env *Environment) int {
     //me := env.Observer
     win := env.Window
+    bat := env.Batch
     cursor := env.Cursor
     //static := env.Static
     //dynamic := env.Dynamic
@@ -310,17 +320,17 @@ func (self *CraftingContext) Handle(env *Environment) int {
 
 
     for _,s := range immov {
-        s.Draw(win)
+        s.Draw(bat)
     }
 
     for _,s := range templates {
-        s.Draw(win)
+        s.Draw(bat)
     }
 
     for _,s := range movable {
-        s.Draw(win)
+        s.Draw(bat)
     }
-    cursor.Draw(win)
+    cursor.Draw(bat)
     return HANDLING
 
 }

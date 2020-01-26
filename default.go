@@ -40,7 +40,7 @@ func DefaultCursor() *Cursor {
         HEIGHT/2, // starting y
         WIDTH, // max x
         HEIGHT, // max y
-        35, // multiplier on sensitivity
+        70, // multiplier on sensitivity
         10, // radius
         3, //thickness
         color.RGBA{128, 128, 128, 150}, // color
@@ -65,18 +65,18 @@ func DefaultStaticShapes() []StaticShape {
         }
 
     }
-    circ := NewSphere(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
-    static = append(static, circ)
+    //circ := NewSphere(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
+    //static = append(static, circ)
     return static
 }
 
 func DefaultDynamicShapes() []DynamicShape {
     dynamic := []DynamicShape{}
     bounce := NewBouncing(&Point{50.0, 30.0, 1.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
-    //fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
+    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
 
     dynamic = append(dynamic, bounce)
-    //dynamic = append(dynamic, fount)
+    dynamic = append(dynamic, fount)
     return dynamic
 }
 

@@ -4,7 +4,6 @@ import (
     "image/color"
     "math"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
     "github.com/faiface/pixel/imdraw"
 )
 
@@ -18,7 +17,7 @@ func NewSphere(c *Point, r float64, col color.RGBA) *Sphere {
     return &Sphere{c, r, col}
 }
 
-func (self *Sphere) Draw(win *pixelgl.Window, ob *Observer) {
+func (self *Sphere) Draw(win pixel.Target, ob *Observer) {
     //if !self.InView(ob) {
     //    return
     //}

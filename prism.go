@@ -2,7 +2,8 @@ package main
 
 import (
     "image/color"
-	"github.com/faiface/pixel/pixelgl"
+	//"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel"
 )
 
 type Prism struct {
@@ -43,7 +44,8 @@ func NewCube(s float64, P *Point, col color.RGBA) *Prism {
 }
 
 
-func (self *Prism) Draw(win *pixelgl.Window, ob *Observer) {
+//func (self *Prism) Draw(win *pixelgl.Window, ob *Observer) {
+func (self *Prism) Draw(win pixel.Target, ob *Observer) {
     for _,line := range self.Lines {
         line.Draw(win, ob)
     }

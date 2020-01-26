@@ -3,7 +3,7 @@ package main
 import (
     "image/color"
     "github.com/faiface/pixel/imdraw"
-	"github.com/faiface/pixel/pixelgl"
+	//"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel"
 )
 
@@ -17,7 +17,7 @@ func NewLine(P,Q *Point, col color.RGBA) *Line {
     return &Line{P, Q, col}
 }
 
-func (self *Line) Draw(win *pixelgl.Window, ob *Observer) {
+func (self *Line) Draw(win pixel.Target, ob *Observer) {
     if !(ob.PointInView(self.P) && ob.PointInView(self.Q)) {
         return
     }
@@ -35,7 +35,8 @@ func (self *Line) Draw(win *pixelgl.Window, ob *Observer) {
 
     avg := (rh1+rh2) / 2
     imd.Push(pixel.V(x1,y1), pixel.V(x2,y2))
-    imd.Line(200/avg)
+    foo := ob.Width / 9.6
+    imd.Line(foo/avg)
 
     imd.Draw(win)
 }

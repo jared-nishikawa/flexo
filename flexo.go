@@ -2,7 +2,6 @@ package main
 
 import (
     "fmt"
-    "image/color"
     "log"
     "time"
 	"github.com/faiface/pixel"
@@ -11,16 +10,24 @@ import (
 
 func run() {
     // Create window
+    // VSync caps FPS at refresh rate of monitor
 	cfg := pixelgl.WindowConfig{
 		Title:  fmt.Sprintf("Flexo"),
 		Bounds: pixel.R(0, 0, WIDTH, HEIGHT),
-		VSync:  true,
+		//VSync:  true,
 	}
 	win, err := pixelgl.NewWindow(cfg)
+    batch := pixel.NewBatch(&pixel.TrianglesData{}, nil)
 
 	if err != nil {
 		panic(err)
 	}
+
+    // For measuring FPS
+    var (
+        frames = 0
+        second = time.Tick(time.Second)
+    )
 
     // Set cursor
     win.DisableCursor()
@@ -48,15 +55,20 @@ func run() {
 
     // Gather up the objects that are collectively known as the "environment"
     // will be passed to the context for handling
-    env := NewEnvironment(me, win, cursor, static, dynamic, movable, immovable, templates, 0)
+    env := NewEnvironment(me, win, batch, cursor, static, dynamic, movable, immovable, templates, 0)
 
-    pos := &Point{me.Pos[0]+10, me.Pos[1], me.Pos[2]-3}
-    c := NewCube(2, pos, color.RGBA{0xff, 0, 0, 0x7f})
 
     last := time.Now()
 
     // looping update code
 	for !win.Closed() {
+        frames++
+        select {
+        case <-second:
+            win.SetTitle(fmt.Sprintf("%s | FPS: %d", cfg.Title, frames))
+            frames = 0
+        default:
+        }
         // dt will be needed for many contexts
         dt := time.Since(last).Seconds()
         last = time.Now()
@@ -64,6 +76,9 @@ func run() {
         // adjust env variables
         env.Cursor = cursor
         env.Dt = dt
+
+        // Clear the batch right before letting the current context draw
+        batch.Clear()
 
         // the main context should always return HANDLING
         // if any other context returns HANDLED, go back to the main context
@@ -79,7 +94,8 @@ func run() {
         // handle context switching
         cs.Switch(win)
 
-        c.Draw(win, me)
+        // Draw the batch to the window
+        batch.Draw(win)
 
         // And update
         win.Update()

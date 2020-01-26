@@ -2,7 +2,7 @@ package main
 
 import (
     "image/color"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel"
 )
 
 type Fountain struct {
@@ -26,7 +26,7 @@ func NewFountain(pos *Point, parts int, theta, phi, v float64, delay float64, co
     return &Fountain{pos, parts, particles, theta, phi, v, decay, 0}
 }
 
-func (self *Fountain) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+func (self *Fountain) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,p := range self.Particles {
         p.Draw(win, ob, dt)
     }

@@ -4,7 +4,7 @@ import (
     "image/color"
     "math"
     "math/rand"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel"
 )
 
 type Particle struct {
@@ -21,7 +21,7 @@ func NewParticle(pos *Point, theta, phi, v, decay, step float64, col color.RGBA)
     return &Particle{pos, rand.Float64()*math.Pi*2, phi, v, decay, step, col}
 }
 
-func (self *Particle) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+func (self *Particle) Draw(win pixel.Target, ob *Observer, dt float64) {
     dx := self.Step*math.Cos(self.Theta)*math.Sqrt(self.V)
     dy := self.Step*math.Sin(self.Theta)*math.Sqrt(self.V)
     dz := 0.001*ob.Gravity*math.Pow(self.Step, 2) + self.V*self.Step + self.Pos[2]

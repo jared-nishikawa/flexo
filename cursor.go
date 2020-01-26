@@ -3,7 +3,6 @@ package main
 import (
     "image/color"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/pixelgl"
     "github.com/faiface/pixel/imdraw"
 )
 
@@ -60,7 +59,7 @@ func (self *Cursor) Move(dx, dy, dt float64) {
     }
 }
 
-func (self *Cursor) Draw(win *pixelgl.Window) {
+func (self *Cursor) Draw(win pixel.Target) {
     imd := imdraw.New(nil)
     imd.Color = self.Color
     imd.Push(pixel.V(self.X, self.Y))

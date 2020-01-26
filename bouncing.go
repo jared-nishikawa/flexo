@@ -3,7 +3,7 @@ package main
 import (
     "image/color"
     "math"
-	"github.com/faiface/pixel/pixelgl"
+	"github.com/faiface/pixel"
 )
 
 type Bouncing struct {
@@ -21,7 +21,7 @@ func NewBouncing(pos *Point, parts int, theta, phi, v float64, decay int, col co
     return &Bouncing{pos, parts, theta, phi, v, decay, 0, col}
 }
 
-func (self *Bouncing) Draw(win *pixelgl.Window, ob *Observer, dt float64) {
+func (self *Bouncing) Draw(win pixel.Target, ob *Observer, dt float64) {
     z := ob.Gravity*math.Pow(self.Step, 2) + self.V*self.Step + self.Pos[2]
     if z < 0 {
         z = 0
