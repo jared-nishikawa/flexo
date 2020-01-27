@@ -143,12 +143,26 @@ func DefaultContexts() map[string]Context {
             log.Println(menu.Options[num])
             return menu, HANDLING
         }}
-    opts := NewMenu(menu, "options", atlas, []string{"resolution"}, colornames.White, colornames.Orange)
+    opts := NewMenu(menu, "options", atlas, []string{"resolution", "vsync"}, colornames.White, colornames.Orange)
     opts.Handle = func(num int, env *Environment) (*Menu, int) {
         switch num {
         default:
             log.Println(opts.Options[num])
             return opts.Children[opts.Options[num]], HANDLING
+        }}
+    vs := NewMenu(opts, "vsync", atlas, []string{"off", "on"}, colornames.White, colornames.Orange)
+    vs.Handle = func(num int, env *Environment) (*Menu, int) {
+        win := env.Window
+        switch num {
+        case 0:
+            win.SetVSync(false)
+            return vs, HANDLING
+        case 1:
+            win.SetVSync(true)
+            return vs, HANDLING
+        default:
+            log.Println(vs.Options[num])
+            return vs.Children[vs.Options[num]], HANDLING
         }}
     res := NewMenu(opts, "resolution", atlas, []string{"640x480", "800x600", "1024x768", "1920x1080"}, colornames.White, colornames.Orange)
     res.Handle = func(num int, env *Environment) (*Menu, int) {

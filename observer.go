@@ -131,7 +131,10 @@ func (self *Observer) PointInView (P *Point) bool {
 
 func (self *Observer) Hand() *Point {
     offset := SphereToRec(20, self.Theta, self.Phi)
-    return Add(offset, self.Pos)
-
+    p := Add(offset, self.Pos)
+    p[0] = 2*math.Floor(p[0]/2)
+    p[1] = 2*math.Floor(p[1]/2)
+    p[2] = 2*math.Floor(p[2]/2)
+    return p
 }
 

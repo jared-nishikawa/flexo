@@ -57,7 +57,6 @@ func run() {
     // will be passed to the context for handling
     env := NewEnvironment(me, win, batch, cursor, static, dynamic, movable, immovable, templates, 0)
 
-
     last := time.Now()
 
     // looping update code
@@ -65,7 +64,11 @@ func run() {
         frames++
         select {
         case <-second:
-            win.SetTitle(fmt.Sprintf("%s | FPS: %d", cfg.Title, frames))
+            vs := "off"
+            if win.VSync() {
+                vs = "on"
+            }
+            win.SetTitle(fmt.Sprintf("%s | FPS: %d | vsync: %s", cfg.Title, frames, vs))
             frames = 0
         default:
         }

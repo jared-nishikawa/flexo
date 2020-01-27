@@ -54,6 +54,7 @@ func (self *MainContext) Handle(env *Environment) int {
     txt.Color = colornames.Brown
     txt.WriteString("jump: [space]\n")
     txt.WriteString("move: [wasd] or arrow keys\n")
+    txt.WriteString("place cube: [left-click]\n")
     txt.WriteString("toggle cursor: [right-click]\n")
     txt.WriteString("menu: [ESC]\n")
 
@@ -110,13 +111,12 @@ func (self *MainContext) Handle(env *Environment) int {
     me.Freefall(dt)
 
     p := me.Hand()
-    cube := NewCube(2, p, color.RGBA{0xff, 0, 0, 0x7f})
+    cube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
     cube.Draw(bat, me)
 
-    //if win.JustPressed(pixelgl.MouseButtonLeft) {
-    if win.Pressed(pixelgl.MouseButtonLeft) {
+    if win.JustPressed(pixelgl.MouseButtonLeft) {
         me.Score += 1
-        cube = NewCube(2, p, colornames.Green)
+        cube = NewCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
         env.Static = append(env.Static, cube)
 
     }
@@ -200,20 +200,6 @@ func (self *MenuContext) Handle(env *Environment) int {
 
     win.Clear(colornames.Black)
     menu.Write()
-
-    /*
-    if win.JustPressed(pixelgl.KeyEnter) {
-        switch menu.Active {
-        case 0:
-            return HANDLED
-        case 3:
-            return EXIT
-        default:
-            log.Println(menu.Options[menu.Active])
-        }
-
-    }
-    */
 
     if win.JustPressed(pixelgl.KeyUp) {
         menu.Up()
@@ -316,7 +302,6 @@ func (self *CraftingContext) Handle(env *Environment) int {
         }
 
     }
-
 
 
     for _,s := range immov {
