@@ -3,6 +3,7 @@ package main
 import (
     "log"
     "math"
+    "math/rand"
     "image/color"
 	"golang.org/x/image/colornames"
     "golang.org/x/image/font/basicfont"
@@ -58,7 +59,13 @@ func DefaultStaticShapes() []StaticShape {
         //for z:=0;z<4;z+=6 {
             p := Point{x, float64(y), float64(z)}
             //q := Point{float64(y), x, float64(z)}
-            cube1 := NewCube(5, &p, colornames.Black)
+            //cube1 := NewSolidCube(5, &p, colornames.Black)
+            r := uint8(rand.Int() % 128)
+            g := uint8(rand.Int() % 128)
+            b := uint8(rand.Int() % 128)
+            a := uint8(rand.Int() % 128) + 128
+            //cube1 := NewSolidCube(5, &p, color.RGBA{0x0, 0x0, 0x0, 0x5f})
+            cube1 := NewSolidCube(5, &p, color.RGBA{r, g, b, a})
             //cube2 := NewCube(5, &q)
             //cubes = append(cubes, cube1, cube2)
             static = append(static, cube1)
@@ -72,11 +79,11 @@ func DefaultStaticShapes() []StaticShape {
 
 func DefaultDynamicShapes() []DynamicShape {
     dynamic := []DynamicShape{}
-    bounce := NewBouncing(&Point{50.0, 30.0, 1.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
-    fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
+    bounce := NewBouncing(&Point{50.0, 30.0, 0.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
+    //fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
 
     dynamic = append(dynamic, bounce)
-    dynamic = append(dynamic, fount)
+    //dynamic = append(dynamic, fount)
     return dynamic
 }
 

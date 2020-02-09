@@ -30,7 +30,7 @@ func run() {
     )
 
     // Set cursor
-    win.DisableCursor()
+    win.SetCursorDisabled()
     win.SetMousePosition(win.Bounds().Center())
 
     // Create contexts

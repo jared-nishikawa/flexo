@@ -33,4 +33,7 @@ func (self *Fountain) Draw(win pixel.Target, ob *Observer, dt float64) {
 
 }
 
+func (self *Fountain) Dist(ob *Observer) float64 {
+    return 0.0
+}
 

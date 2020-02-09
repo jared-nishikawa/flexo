@@ -115,7 +115,8 @@ func (self *Observer) PointInView (P *Point) bool {
     // calculate theta and phi
     _, th, ph := RecToSphere(Q)
 
-    eps := 0.1
+    // tolerance
+    eps := 0.5
 
     if th + eps < -self.HFov/2 || th - eps > self.HFov/2 {
         return false

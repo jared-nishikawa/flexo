@@ -4,6 +4,7 @@ import (
     "fmt"
     "image/color"
     "log"
+    "sort"
 //    "math"
     "github.com/faiface/pixel"
     "github.com/faiface/pixel/pixelgl"
@@ -111,12 +112,10 @@ func (self *MainContext) Handle(env *Environment) int {
     me.Freefall(dt)
 
     p := me.Hand()
-    cube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
-    cube.Draw(bat, me)
 
     if win.JustPressed(pixelgl.MouseButtonLeft) {
         me.Score += 1
-        cube = NewCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
+        cube := NewSolidCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
         env.Static = append(env.Static, cube)
 
     }
@@ -154,14 +153,46 @@ func (self *MainContext) Handle(env *Environment) int {
     // draw things
 
     // static shapes
+    //n := len(static) + len(dynamic)
+    keys := []float64{}
+    m := map[float64][]Shape{}
     for _,shape := range static {
-        shape.Draw(bat, me)
+        d := shape.Dist(me)
+        keys = append(keys, d)
+        if m[d] == nil {
+            m[d] = []Shape{}
+        }
+        m[d] = append(m[d], shape)
+    }
+    for _,shape := range dynamic {
+        d := shape.Dist(me)
+        keys = append(keys, d)
+        if m[d] == nil {
+            m[d] = []Shape{}
+        }
+        m[d] = append(m[d], shape)
     }
 
-    // dynamic shapes
-    for _,shape := range dynamic {
-        shape.Draw(bat, me, dt)
+    sort.Sort(sort.Reverse(sort.Float64Slice(keys)))
+    for _,k := range keys {
+        for _,shape := range m[k] {
+            shape.Draw(bat, me, dt)
+        }
     }
+
+
+    //for _,shape := range static {
+    //    shape.Draw(bat, me, dt)
+    //}
+
+    // dynamic shapes
+    //for _,shape := range dynamic {
+    //    shape.Draw(bat, me, dt)
+    //}
+
+    // draw template
+    templateCube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
+    templateCube.Draw(bat, me, dt)
 
     // cursor
     cursor.Draw(bat)

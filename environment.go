@@ -9,13 +9,20 @@ type MetaShape interface {
     Draw(win pixel.Target)
 }
 
+type Shape interface {
+    Draw(win pixel.Target, ob *Observer, dt float64)
+    Dist(ob *Observer) float64
+}
+
 type StaticShape interface {
     //Draw(win *pixelgl.Window, ob *Observer)
-    Draw(win pixel.Target, ob *Observer)
+    Draw(win pixel.Target, ob *Observer, dt float64)
+    Dist(ob *Observer) float64
 }
 
 type DynamicShape interface {
     Draw(win pixel.Target, ob *Observer, dt float64)
+    Dist(ob *Observer) float64
 }
 
 type Environment struct {

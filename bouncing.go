@@ -7,6 +7,7 @@ import (
 )
 
 type Bouncing struct {
+    OrigPos *Point
     Pos *Point
     Parts int
     Theta float64
@@ -18,17 +19,23 @@ type Bouncing struct {
 }
 
 func NewBouncing(pos *Point, parts int, theta, phi, v float64, decay int, col color.RGBA) *Bouncing {
-    return &Bouncing{pos, parts, theta, phi, v, decay, 0, col}
+    return &Bouncing{pos, pos, parts, theta, phi, v, decay, 0, col}
 }
 
 func (self *Bouncing) Draw(win pixel.Target, ob *Observer, dt float64) {
-    z := ob.Gravity*math.Pow(self.Step, 2) + self.V*self.Step + self.Pos[2]
+    z := ob.Gravity*math.Pow(self.Step, 2) + self.V*self.Step + self.OrigPos[2]
     if z < 0 {
         z = 0
         self.Step = 0
     }
-    newPos := &Point{self.Pos[0], self.Pos[1], z}
+    newPos := &Point{self.OrigPos[0], self.OrigPos[1], z}
+    self.Pos = newPos
     c := NewSphere(newPos, 0.5, self.Color)
     self.Step += dt
     c.Draw(win, ob)
+}
+
+func (self *Bouncing) Dist(ob *Observer) float64 {
+    d := Distance(ob.Pos, self.Pos)
+    return d
 }
