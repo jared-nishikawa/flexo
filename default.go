@@ -30,7 +30,7 @@ func DefaultObserver() *Observer {
         0.0, // theta
         math.Pi/2, //phi
         SENSITIVITY, // for mouse movement translated to 3d camera pan
-        &Point{0.0, 0.0, 0.0}, // starting position
+        &Point{0.0, 0.0, 6.0}, // starting position
         false, // locked, for allowing cursor movement
     )
 }
@@ -41,7 +41,7 @@ func DefaultCursor() *Cursor {
         HEIGHT/2, // starting y
         WIDTH, // max x
         HEIGHT, // max y
-        70, // multiplier on sensitivity
+        180, // multiplier on sensitivity
         10, // radius
         3, //thickness
         color.RGBA{128, 128, 128, 150}, // color
@@ -52,28 +52,31 @@ func DefaultCursor() *Cursor {
 
 func DefaultStaticShapes() []StaticShape {
     static := []StaticShape{}
-    for y:=-10;y<11;y+=6 {
-    //for y:=5;y<11;y+=6 {
-        x := float64(20)
-        for z:=-9;z<4;z+=6 {
-        //for z:=0;z<4;z+=6 {
-            p := Point{x, float64(y), float64(z)}
-            //q := Point{float64(y), x, float64(z)}
-            //cube1 := NewSolidCube(5, &p, colornames.Black)
-            r := uint8(rand.Int() % 128)
-            g := uint8(rand.Int() % 128)
-            b := uint8(rand.Int() % 128)
-            a := uint8(rand.Int() % 128) + 128
-            //cube1 := NewSolidCube(5, &p, color.RGBA{0x0, 0x0, 0x0, 0x5f})
-            cube1 := NewSolidCube(5, &p, color.RGBA{r, g, b, a})
-            //cube2 := NewCube(5, &q)
-            //cubes = append(cubes, cube1, cube2)
-            static = append(static, cube1)
+    for y:=0;y<36;y+=6 {
+        for z:=0;z<36;z+=6 {
+            for x:=0;x<36;x+=6 {
+                p1 := Point{float64(x), float64(y), float64(z)}
+
+                r := uint8(rand.Int() % 256)
+                g := uint8(rand.Int() % 256)
+                b := uint8(rand.Int() % 256)
+                a := uint8(128)
+
+                cube1 := NewSolidCube(5, &p1, color.RGBA{r, g, b, a})
+
+                static = append(static, cube1)
+            }
         }
 
     }
     //circ := NewSphere(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
     //static = append(static, circ)
+
+    wall1 := NewWall(100.0, 100.0, 100.0, 120.0, 0.0)
+    wall2 := NewWall(100.0, 120.0, 120.0, 120.0, 0.0)
+    wall3 := NewWall(120.0, 120.0, 120.0, 100.0, 0.0)
+    wall4 := NewWall(300.0, 300.0, 400.0, 300.0, 100.0)
+    static = append(static, []StaticShape{wall1, wall2, wall3, wall4}...)
     return static
 }
 

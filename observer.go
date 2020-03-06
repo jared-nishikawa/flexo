@@ -81,10 +81,10 @@ func (self *Observer) Jump() {
 
 func (self *Observer) Freefall(dt float64) {
     self.Pos[2] += self.VerticalSpeed*dt
-    if self.Pos[2] > 0 {
+    if self.Pos[2] > 6 {
         self.VerticalSpeed += self.Gravity*dt
-        if self.Pos[2] < 0 {
-            self.Pos[2] = 0
+        if self.Pos[2] < 6 {
+            self.Pos[2] = 6
         }
     } else {
         self.VerticalSpeed = 0
@@ -116,7 +116,7 @@ func (self *Observer) PointInView (P *Point) bool {
     _, th, ph := RecToSphere(Q)
 
     // tolerance
-    eps := 0.5
+    eps := math.Pi/2
 
     if th + eps < -self.HFov/2 || th - eps > self.HFov/2 {
         return false

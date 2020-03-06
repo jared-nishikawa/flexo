@@ -70,7 +70,7 @@ func (self *SolidPrism) Dist(ob *Observer) float64 {
 
 func (self *SolidPrism) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,poly := range self.Polygons {
-        poly.Draw(win, ob)
+        poly.Draw(win, ob, dt)
     }
 }
 
@@ -136,7 +136,7 @@ func (self *Prism) Dist(ob *Observer) float64 {
 //func (self *Prism) Draw(win *pixelgl.Window, ob *Observer) {
 func (self *Prism) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,line := range self.Lines {
-        line.Draw(win, ob)
+        line.Draw(win, ob, dt)
     }
 }
 

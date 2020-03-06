@@ -112,12 +112,12 @@ func (self *MainContext) Handle(env *Environment) int {
     me.Freefall(dt)
 
     p := me.Hand()
+    _ = p
 
     if win.JustPressed(pixelgl.MouseButtonLeft) {
         me.Score += 1
-        cube := NewSolidCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
-        env.Static = append(env.Static, cube)
-
+        //cube := NewSolidCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
+        //env.Static = append(env.Static, cube)
     }
 
     if win.JustPressed(pixelgl.MouseButtonRight) {
@@ -126,7 +126,6 @@ func (self *MainContext) Handle(env *Environment) int {
         } else {
             me.Locked = true
         }
-
     }
 
     // align to mouse
@@ -191,8 +190,8 @@ func (self *MainContext) Handle(env *Environment) int {
     //}
 
     // draw template
-    templateCube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
-    templateCube.Draw(bat, me, dt)
+    //templateCube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
+    //templateCube.Draw(bat, me, dt)
 
     // cursor
     cursor.Draw(bat)

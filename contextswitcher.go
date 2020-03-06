@@ -50,13 +50,14 @@ func (self *ContextSwitcher) Switch(win *pixelgl.Window) {
         }
     }
 
-    if win.JustPressed(pixelgl.KeyC) {
-        if self.Current() == self.Contexts["main"] {
-            self.Stack = append([]Context{self.Contexts["crafting"]}, self.Stack...)
-        } else if self.Current() == self.Contexts["crafting"] {
-            self.Stack = self.Stack[1:]
-        }
-    }
+    // c switches from main context to crafting context (menu context ignores c)
+    //if win.JustPressed(pixelgl.KeyC) {
+    //    if self.Current() == self.Contexts["main"] {
+    //        self.Stack = append([]Context{self.Contexts["crafting"]}, self.Stack...)
+    //    } else if self.Current() == self.Contexts["crafting"] {
+    //        self.Stack = self.Stack[1:]
+    //    }
+    //}
 }
 
 func NewContextSwitcher(ctxts map[string]Context) *ContextSwitcher {

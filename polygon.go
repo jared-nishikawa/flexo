@@ -3,7 +3,6 @@ package main
 import (
     "image/color"
     "github.com/faiface/pixel/imdraw"
-	//"github.com/faiface/pixel/pixelgl"
 	"github.com/faiface/pixel"
 )
 
@@ -16,7 +15,19 @@ func NewPolygon(points []*Point, col color.RGBA) *Polygon {
     return &Polygon{points, col}
 }
 
-func (self *Polygon) Draw(win pixel.Target, ob *Observer) {
+func (self *Polygon) Dist(ob *Observer) float64 {
+    sumDists := 0.0
+    numPoints := 0
+    for _,p := range self.Points {
+        relative_p := Snap(p, ob.Pos, ob.Theta, ob.Phi)
+        rh, _, _ := RecToSphere(relative_p)
+        sumDists += rh
+        numPoints += 1
+    }
+    return sumDists/float64(numPoints)
+}
+
+func (self *Polygon) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,p := range self.Points {
         if !(ob.PointInView(p)) {
             return
