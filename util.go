@@ -52,6 +52,14 @@ func Add(P, Q *Point) *Point {
     return &Point{P[0]+Q[0], P[1]+Q[1], P[2]+Q[2]}
 }
 
+func Negate(P *Point) *Point {
+    return &Point{-P[0], -P[1], -P[2]}
+}
+
+func Subtract(P *Point, Q *Point) *Point {
+    return Add(P, Negate(Q))
+}
+
 // rotate around z-axis
 func Rotate(P *Point, theta float64) *Point {
     theta = -theta
@@ -83,4 +91,49 @@ func Snap(P, Q *Point, theta, phi float64) *Point {
     P1 := Translate(P, Q)
     P2 := Rotate(P1, -theta)
     return Tilt(P2, math.Pi/2-phi)
+}
+
+// align a to the nearest b (whether up or down)
+func Align(a, b float64) (float64,int) {
+    sign := 1.0
+    if a < 0 {
+        sign = -1.0
+    }
+    a = math.Abs(a)
+    lowIndex := int(a/b)
+    highIndex := int((a+b)/b)
+    low := float64(lowIndex) * b
+    high := float64(highIndex) * b
+    highDiff := math.Abs(high - a)
+    lowDiff := math.Abs(a - low)
+    if highDiff <= lowDiff {
+        return sign*high, int(sign)*highIndex
+    }
+    return sign*low, int(sign)*lowIndex
+}
+
+func Min(nums ...float64) float64 {
+    if len(nums) == 0 {
+        panic(nil)
+    }
+    m := nums[0]
+    for _,num := range nums {
+        if num <= m {
+            m = num
+        }
+    }
+    return m
+}
+
+func Max(nums ...float64) float64 {
+    if len(nums) == 0 {
+        panic(nil)
+    }
+    m := nums[0]
+    for _,num := range nums {
+        if num >= m {
+            m = num
+        }
+    }
+    return m
 }

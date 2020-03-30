@@ -5,19 +5,19 @@ import (
 )
 
 type Observer struct {
-    HFov float64
-    VFov float64
-    Width float64
-    Height float64
-    Speed float64
-    VerticalSpeed float64
-    Gravity float64
-    Theta float64
-    Phi float64
-    Sensitivity float64
-    Pos *Point
-    Locked bool
-    Score int
+    HFov            float64
+    VFov            float64
+    Width           float64
+    Height          float64
+    Speed           float64
+    VerticalSpeed   float64
+    Gravity         float64
+    Theta           float64
+    Phi             float64
+    Sensitivity     float64
+    Pos             *Point
+    Locked          bool
+    Score           int
 }
 
 func NewObserver(fov, w, h, s, vs, g, th, ph, sens float64, p *Point, l bool) *Observer {
@@ -130,12 +130,4 @@ func (self *Observer) PointInView (P *Point) bool {
     return true
 }
 
-func (self *Observer) Hand() *Point {
-    offset := SphereToRec(20, self.Theta, self.Phi)
-    p := Add(offset, self.Pos)
-    p[0] = 2*math.Floor(p[0]/2)
-    p[1] = 2*math.Floor(p[1]/2)
-    p[2] = 2*math.Floor(p[2]/2)
-    return p
-}
 

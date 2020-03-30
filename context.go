@@ -3,8 +3,8 @@ package main
 import (
     "fmt"
     "image/color"
-    "log"
-    "sort"
+//    "log"
+//    "sort"
 //    "math"
     "github.com/faiface/pixel"
     "github.com/faiface/pixel/pixelgl"
@@ -46,13 +46,14 @@ func (self *MainContext) Handle(env *Environment) int {
     win := env.Window
     bat := env.Batch
     cursor := env.Cursor
-    static := env.Static
-    dynamic := env.Dynamic
+    //static := env.Static
+    world := env.World
+    //dynamic := env.Dynamic
     dt := env.Dt
     atlas := DefaultAtlas()
 
     txt := text.New(pixel.ZV, atlas)
-    txt.Color = colornames.Brown
+    txt.Color = &colornames.Brown
     txt.WriteString("jump: [space]\n")
     txt.WriteString("move: [wasd] or arrow keys\n")
     txt.WriteString("place cube: [left-click]\n")
@@ -71,7 +72,7 @@ func (self *MainContext) Handle(env *Environment) int {
     mat = mat.Moved(pixel.V(desired/2,me.Height-desired))
 
     scoreTxt := text.New(pixel.ZV, atlas)
-    scoreTxt.Color = colornames.Black
+    scoreTxt.Color = &colornames.Black
     scoreMat := pixel.IM
     scoreMat = scoreMat.ScaledXY(pixel.ZV, pixel.V(scale,scale))
     scoreMat = scoreMat.Moved(pixel.V(desired/2, 4*desired))
@@ -80,7 +81,7 @@ func (self *MainContext) Handle(env *Environment) int {
     scoreTxt.Dot = dot
     scoreTxt.WriteString(fmt.Sprintf("score: %d\r", me.Score))
 
-    win.Clear(colornames.Aliceblue)
+    win.Clear(&colornames.Aliceblue)
 
     if win.Pressed(pixelgl.KeyUp) || win.Pressed(pixelgl.KeyW) {
         me.Forward(dt)
@@ -98,25 +99,25 @@ func (self *MainContext) Handle(env *Environment) int {
         me.Right(dt)
     }
 
-    if win.Pressed(pixelgl.KeyK) {
+    if win.Pressed(pixelgl.KeyV) {
         me.Ascend(dt)
     }
 
-    if win.Pressed(pixelgl.KeyJ) {
+    if win.Pressed(pixelgl.KeyC) {
         me.Descend(dt)
     }
 
     if win.JustPressed(pixelgl.KeySpace) {
         me.Jump()
     }
-    me.Freefall(dt)
+    //me.Freefall(dt)
 
-    p := me.Hand()
-    _ = p
+    hand := env.Cast()
 
-    if win.JustPressed(pixelgl.MouseButtonLeft) {
+    if win.JustPressed(pixelgl.MouseButtonLeft) && hand != nil {
         me.Score += 1
-        //cube := NewSolidCube(2, p, color.RGBA{0x7f, 0, 0, 0xbf})
+        cube := NewBorderedCube(world.Snap, hand, &color.RGBA{0xff, 0, 0, 0xff}, &colornames.Black)
+        world.Set(hand, cube)
         //env.Static = append(env.Static, cube)
     }
 
@@ -150,48 +151,46 @@ func (self *MainContext) Handle(env *Environment) int {
     }
 
     // draw things
+    // take into account observer's FOV and position
+    // draw 4 rays
+    d := 40.0
+    hray1 := me.Theta - me.HFov
+    hray2 := me.Theta + me.HFov
+    p1 := world.Ray(me.Pos, d, hray1, me.Phi)
+    p2 := world.Ray(me.Pos, d, hray2, me.Phi)
 
-    // static shapes
-    //n := len(static) + len(dynamic)
-    keys := []float64{}
-    m := map[float64][]Shape{}
-    for _,shape := range static {
-        d := shape.Dist(me)
-        keys = append(keys, d)
-        if m[d] == nil {
-            m[d] = []Shape{}
+    vray1 := me.Phi - me.VFov
+    vray2 := me.Phi + me.VFov
+    q1 := world.Ray(me.Pos, d, me.Theta, vray1)
+    q2 := world.Ray(me.Pos, d, me.Theta, vray2)
+
+    minX := Min(p1[0], p2[0], q1[0], q2[0], me.Pos[0])
+    maxX := Max(p1[0], p2[0], q1[0], q2[0], me.Pos[0])
+    minY := Min(p1[1], p2[1], q1[1], q2[1], me.Pos[1])
+    maxY := Max(p1[1], p2[1], q1[1], q2[1], me.Pos[1])
+    minZ := Min(p1[2], p2[2], q1[2], q2[2], me.Pos[2])
+    maxZ := Max(p1[2], p2[2], q1[2], q2[2], me.Pos[2])
+
+    for i := minX; i <= maxX; i++ {
+        for j := minY; j <= maxY; j++ {
+            for k := minZ; k <= maxZ; k++ {
+                p := &Point{i,j,k}
+                if !world.Exists(p) {
+                    continue
+                }
+                obj := world.Get(p)
+                if obj != nil {
+                    obj.Draw(bat, me, dt)
+                }
+            }
         }
-        m[d] = append(m[d], shape)
     }
-    for _,shape := range dynamic {
-        d := shape.Dist(me)
-        keys = append(keys, d)
-        if m[d] == nil {
-            m[d] = []Shape{}
-        }
-        m[d] = append(m[d], shape)
-    }
-
-    sort.Sort(sort.Reverse(sort.Float64Slice(keys)))
-    for _,k := range keys {
-        for _,shape := range m[k] {
-            shape.Draw(bat, me, dt)
-        }
-    }
-
-
-    //for _,shape := range static {
-    //    shape.Draw(bat, me, dt)
-    //}
-
-    // dynamic shapes
-    //for _,shape := range dynamic {
-    //    shape.Draw(bat, me, dt)
-    //}
 
     // draw template
-    //templateCube := NewCube(2, p, color.RGBA{0x7f, 0, 0, 0x7f})
-    //templateCube.Draw(bat, me, dt)
+    if hand != nil {
+        templateCube := NewBorderedCube(world.Snap, hand, &color.RGBA{0x0, 0xff, 0, 0x5f}, &colornames.Black)
+        templateCube.Draw(bat, me, dt)
+    }
 
     // cursor
     cursor.Draw(bat)
@@ -255,6 +254,7 @@ func (self *MenuContext) Handle(env *Environment) int {
     //return HANDLING
 }
 
+/*
 type CraftingContext struct {
 }
 
@@ -350,3 +350,4 @@ func (self *CraftingContext) Handle(env *Environment) int {
 
 }
 
+*/

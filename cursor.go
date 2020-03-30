@@ -14,12 +14,12 @@ type Cursor struct {
     Multiplier float64
     Radius float64
     Thickness float64
-    Color color.RGBA
+    Color *color.RGBA
     Active byte
     Inactive byte
 }
 
-func NewCursor(x, y, maxX, maxY, m, r, t float64, col color.RGBA, active, inactive byte) *Cursor {
+func NewCursor(x, y, maxX, maxY, m, r, t float64, col *color.RGBA, active, inactive byte) *Cursor {
     cur := &Cursor{
         X: x,
         Y: y,

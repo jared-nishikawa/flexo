@@ -45,17 +45,12 @@ func run() {
     // Create cursor
     cursor := DefaultCursor()
 
-    // Placeholders for static and dynamic shapes
-    static := DefaultStaticShapes()
-    dynamic := DefaultDynamicShapes()
-    movable := DefaultMovableShapes()
-    immovable := DefaultImmovableShapes()
-    templates := DefaultTemplates()
-    //flat := DefaultFlatShapes()
+    // Make grid world
+    world := DefaultWorld()
 
     // Gather up the objects that are collectively known as the "environment"
     // will be passed to the context for handling
-    env := NewEnvironment(me, win, batch, cursor, static, dynamic, movable, immovable, templates, 0)
+    env := NewEnvironment(me, win, batch, cursor, world, 0)
 
     last := time.Now()
 
@@ -73,12 +68,8 @@ func run() {
         default:
         }
         // dt will be needed for many contexts
-        dt := time.Since(last).Seconds()
+        env.Dt = time.Since(last).Seconds()
         last = time.Now()
-
-        // adjust env variables
-        env.Cursor = cursor
-        env.Dt = dt
 
         // Clear the batch right before letting the current context draw
         batch.Clear()

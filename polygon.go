@@ -8,13 +8,14 @@ import (
 
 type Polygon struct {
     Points []*Point
-    Color color.RGBA
+    Color *color.RGBA
 }
 
-func NewPolygon(points []*Point, col color.RGBA) *Polygon {
+func NewPolygon(points []*Point, col *color.RGBA) *Polygon {
     return &Polygon{points, col}
 }
 
+/*
 func (self *Polygon) Dist(ob *Observer) float64 {
     sumDists := 0.0
     numPoints := 0
@@ -26,6 +27,7 @@ func (self *Polygon) Dist(ob *Observer) float64 {
     }
     return sumDists/float64(numPoints)
 }
+*/
 
 func (self *Polygon) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,p := range self.Points {

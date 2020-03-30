@@ -10,10 +10,10 @@ import (
 type Line struct {
     P *Point
     Q *Point
-    Color color.RGBA
+    Color *color.RGBA
 }
 
-func NewLine(P,Q *Point, col color.RGBA) *Line {
+func NewLine(P,Q *Point, col *color.RGBA) *Line {
     return &Line{P, Q, col}
 }
 
@@ -35,7 +35,8 @@ func (self *Line) Draw(win pixel.Target, ob *Observer, dt float64) {
 
     avg := (rh1+rh2) / 2
     imd.Push(pixel.V(x1,y1), pixel.V(x2,y2))
-    scale := ob.Width / 9.6
+    //scale := ob.Width / 9.6
+    scale := ob.Width / 20.0
     thickness := scale/avg
     if thickness < 1.0 {
         thickness = 1.0

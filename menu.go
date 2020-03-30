@@ -11,15 +11,15 @@ type Menu struct {
     Label string
     Options []string
     Active int
-    Color color.RGBA
-    ActiveColor color.RGBA
+    Color *color.RGBA
+    ActiveColor *color.RGBA
     Atlas *text.Atlas
     Text *text.Text
     Children map[string]*Menu
     Handle func(int, *Environment) (*Menu, int)
 }
 
-func NewMenu(root *Menu, label string, atlas *text.Atlas, options []string, color, activeColor color.RGBA) *Menu {
+func NewMenu(root *Menu, label string, atlas *text.Atlas, options []string, color, activeColor *color.RGBA) *Menu {
     menu := &Menu{
         Root: root,
         Label: label,

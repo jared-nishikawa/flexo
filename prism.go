@@ -10,10 +10,11 @@ type SolidPrism struct {
     Polygons []*Polygon
 }
 
-func NewSolidPrism(r, s, t float64, P *Point, col color.RGBA) *SolidPrism {
-    x := P[0]
-    y := P[1]
-    z := P[2]
+// P will be the exact center
+func NewSolidPrism(r, s, t float64, P *Point, col *color.RGBA) *SolidPrism {
+    x := P[0] - r/2
+    y := P[1] - s/2
+    z := P[2] - t/2
     points := []*Point{
         &Point{x,y,z},
         &Point{x+r,y,z},
@@ -45,29 +46,9 @@ func NewSolidPrism(r, s, t float64, P *Point, col color.RGBA) *SolidPrism {
     return &SolidPrism{polygons}
 }
 
-func NewSolidCube(s float64, P *Point, col color.RGBA) *SolidPrism {
+func NewSolidCube(s float64, P *Point, col *color.RGBA) *SolidPrism {
     return NewSolidPrism(s, s, s, P, col)
 }
-
-func (self *SolidPrism) Dist(ob *Observer) float64 {
-    x := 0.0
-    y := 0.0
-    z := 0.0
-    total := 0.0
-    for _,pol := range self.Polygons {
-        for _,point := range pol.Points {
-            x += point[0]
-            y += point[1]
-            z += point[2]
-            total += 1.0
-        }
-    }
-    x /= total
-    y /= total
-    z /= total
-    return Distance(ob.Pos, &Point{x,y,z})
-}
-
 func (self *SolidPrism) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,poly := range self.Polygons {
         poly.Draw(win, ob, dt)
@@ -78,10 +59,11 @@ type Prism struct {
     Lines []*Line
 }
 
-func NewPrism(r, s, t float64, P *Point, col color.RGBA) *Prism {
-    x := P[0]
-    y := P[1]
-    z := P[2]
+// P will be the exact center
+func NewPrism(r, s, t float64, P *Point, col *color.RGBA) *Prism {
+    x := P[0] - r/2
+    y := P[1] - s/2
+    z := P[2] - t/2
     bottom := []*Point{
         &Point{x,y,z},
         &Point{x+r,y,z},
@@ -107,30 +89,8 @@ func NewPrism(r, s, t float64, P *Point, col color.RGBA) *Prism {
     return &Prism{lines}
 }
 
-func NewCube(s float64, P *Point, col color.RGBA) *Prism {
+func NewCube(s float64, P *Point, col *color.RGBA) *Prism {
     return NewPrism(s, s, s, P, col)
-}
-
-func (self *Prism) Dist(ob *Observer) float64 {
-    x := 0.0
-    y := 0.0
-    z := 0.0
-    total := 0.0
-    for _,line := range self.Lines {
-        x += line.P[0]
-        y += line.P[1]
-        z += line.P[2]
-        x += line.Q[0]
-        y += line.Q[1]
-        z += line.Q[2]
-        total += 2.0
-    }
-    x /= total
-    y /= total
-    z /= total
-
-    d := Distance(ob.Pos, &Point{x,y,z})
-    return d
 }
 
 //func (self *Prism) Draw(win *pixelgl.Window, ob *Observer) {
@@ -138,5 +98,26 @@ func (self *Prism) Draw(win pixel.Target, ob *Observer, dt float64) {
     for _,line := range self.Lines {
         line.Draw(win, ob, dt)
     }
+}
+
+type BorderedPrism struct {
+    *Prism
+    *SolidPrism
+}
+
+// P will be the exact center
+func NewBorderedPrism(r, s, t float64, P *Point, faceCol, borderCol *color.RGBA) *BorderedPrism {
+    pr := NewPrism(r, s, t, P, borderCol)
+    sr := NewSolidPrism(r, s, t, P, faceCol)
+    return &BorderedPrism{pr, sr}
+}
+
+func (self *BorderedPrism) Draw(win pixel.Target, ob *Observer, dt float64) {
+    self.SolidPrism.Draw(win, ob, dt)
+    self.Prism.Draw(win, ob, dt)
+}
+
+func NewBorderedCube(s float64, P *Point, faceCol, borderCol *color.RGBA) *BorderedPrism {
+    return NewBorderedPrism(s, s, s, P, faceCol, borderCol)
 }
 

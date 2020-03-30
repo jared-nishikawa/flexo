@@ -3,7 +3,7 @@ package main
 import (
     "log"
     "math"
-    "math/rand"
+    //"math/rand"
     "image/color"
 	"golang.org/x/image/colornames"
     "golang.org/x/image/font/basicfont"
@@ -18,6 +18,8 @@ const HEIGHT = 1080.0
 //const HEIGHT = 600.0
 const GRAVITY = -50
 const SENSITIVITY = 0.1
+const WSIZE = 101
+const SNAP = 1.0
 
 func DefaultObserver() *Observer {
     return NewObserver(
@@ -44,52 +46,78 @@ func DefaultCursor() *Cursor {
         180, // multiplier on sensitivity
         10, // radius
         3, //thickness
-        color.RGBA{128, 128, 128, 150}, // color
+        &color.RGBA{128, 128, 128, 150}, // color
         255, // active alpha
         150, // inactive alpha
     )
 }
 
+func DefaultWorld() *World {
+    grid := make([][][]Object, WSIZE)
+    for i := range grid {
+        grid[i] = make([][]Object, WSIZE)
+        for j := range grid[i] {
+            grid[i][j] = make([]Object, WSIZE)
+        }
+    }
+
+    pos := &Point{SNAP*30.0, 0.0, 0.0}
+    cube := NewBorderedCube(SNAP, pos, &color.RGBA{0x0f, 0x0f, 0x0f, 0x7f}, &colornames.Black)
+    w := &World{
+        Grid: grid,
+        Snap: SNAP,
+    }
+
+    w.Set(pos, cube)
+
+    return w
+}
+
+/*
 func DefaultStaticShapes() []StaticShape {
     static := []StaticShape{}
-    for y:=0;y<36;y+=6 {
-        for z:=0;z<36;z+=6 {
-            for x:=0;x<36;x+=6 {
-                p1 := Point{float64(x), float64(y), float64(z)}
+    //for y:=0;y<36;y+=6 {
+    //    for z:=0;z<36;z+=6 {
+    //        for x:=0;x<36;x+=6 {
+    //            p1 := Point{float64(x), float64(y), float64(z)}
 
-                r := uint8(rand.Int() % 256)
-                g := uint8(rand.Int() % 256)
-                b := uint8(rand.Int() % 256)
-                a := uint8(128)
+    //            r := uint8(rand.Int() % 256)
+    //            g := uint8(rand.Int() % 256)
+    //            b := uint8(rand.Int() % 256)
+    //            a := uint8(128)
 
-                cube1 := NewSolidCube(5, &p1, color.RGBA{r, g, b, a})
+    //            cube1 := NewSolidCube(5, &p1, color.RGBA{r, g, b, a})
 
-                static = append(static, cube1)
-            }
-        }
+    //            static = append(static, cube1)
+    //        }
+    //    }
 
-    }
+    //}
     //circ := NewSphere(&Point{30.0, 0.0, 5.0}, 0.5, colornames.Orange)
     //static = append(static, circ)
 
-    wall1 := NewWall(100.0, 100.0, 100.0, 120.0, 0.0)
-    wall2 := NewWall(100.0, 120.0, 120.0, 120.0, 0.0)
-    wall3 := NewWall(120.0, 120.0, 120.0, 100.0, 0.0)
-    wall4 := NewWall(300.0, 300.0, 400.0, 300.0, 100.0)
-    static = append(static, []StaticShape{wall1, wall2, wall3, wall4}...)
+    //wall1 := NewWall(100.0, 100.0, 100.0, 120.0, 0.0)
+    //wall2 := NewWall(100.0, 120.0, 120.0, 120.0, 0.0)
+    //wall3 := NewWall(120.0, 120.0, 120.0, 100.0, 0.0)
+    //wall4 := NewWall(300.0, 300.0, 400.0, 300.0, 100.0)
+    //static = append(static, []StaticShape{wall1, wall2, wall3, wall4}...)
     return static
 }
+*/
 
+/*
 func DefaultDynamicShapes() []DynamicShape {
     dynamic := []DynamicShape{}
-    bounce := NewBouncing(&Point{50.0, 30.0, 0.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
+    //bounce := NewBouncing(&Point{50.0, 30.0, 0.0}, 10, 0.0, 0.0, 50.0, 0, colornames.Blue)
     //fount := NewFountain(&Point{20.0, -20.0, 0.0}, 100, 0.0, 0.0, 5.0, 0.5, colornames.Navy)
 
-    dynamic = append(dynamic, bounce)
+    //dynamic = append(dynamic, bounce)
     //dynamic = append(dynamic, fount)
     return dynamic
 }
+*/
 
+/*
 func DefaultFlatShapes() []FlatShape {
     flat := []FlatShape{}
     //s := NewSquare(100, 400, 500, 5, colornames.Red)
@@ -126,6 +154,7 @@ func DefaultTemplates() []FlatShape {
 func DefaultMovableShapes() []FlatShape {
     return []FlatShape{}
 }
+*/
 
 func DefaultAtlas() *text.Atlas {
     return text.NewAtlas(basicfont.Face7x13, text.ASCII)
@@ -139,7 +168,7 @@ func DefaultContexts() map[string]Context {
     contexts["main"] = &MainContext{}
 
     // menu context
-    menu := NewMenu(nil, "root", atlas, []string{"resume", "save", "options", "exit"}, colornames.White, colornames.Orange)
+    menu := NewMenu(nil, "root", atlas, []string{"resume", "save", "options", "exit"}, &colornames.White, &colornames.Orange)
     menu.Handle = func(num int, env *Environment) (*Menu, int) {
         switch num {
         case 0:
@@ -153,14 +182,14 @@ func DefaultContexts() map[string]Context {
             log.Println(menu.Options[num])
             return menu, HANDLING
         }}
-    opts := NewMenu(menu, "options", atlas, []string{"resolution", "vsync"}, colornames.White, colornames.Orange)
+    opts := NewMenu(menu, "options", atlas, []string{"resolution", "vsync"}, &colornames.White, &colornames.Orange)
     opts.Handle = func(num int, env *Environment) (*Menu, int) {
         switch num {
         default:
             log.Println(opts.Options[num])
             return opts.Children[opts.Options[num]], HANDLING
         }}
-    vs := NewMenu(opts, "vsync", atlas, []string{"off", "on"}, colornames.White, colornames.Orange)
+    vs := NewMenu(opts, "vsync", atlas, []string{"off", "on"}, &colornames.White, &colornames.Orange)
     vs.Handle = func(num int, env *Environment) (*Menu, int) {
         win := env.Window
         switch num {
@@ -174,7 +203,7 @@ func DefaultContexts() map[string]Context {
             log.Println(vs.Options[num])
             return vs.Children[vs.Options[num]], HANDLING
         }}
-    res := NewMenu(opts, "resolution", atlas, []string{"640x480", "800x600", "1024x768", "1920x1080"}, colornames.White, colornames.Orange)
+    res := NewMenu(opts, "resolution", atlas, []string{"640x480", "800x600", "1024x768", "1920x1080"}, &colornames.White, &colornames.Orange)
     res.Handle = func(num int, env *Environment) (*Menu, int) {
         win := env.Window
         ob := env.Observer
@@ -214,6 +243,7 @@ func DefaultContexts() map[string]Context {
     contexts["menu"] = NewMenuContext(menu)
 
     //crafting context
-    contexts["crafting"] = &CraftingContext{}
+    //contexts["crafting"] = &CraftingContext{}
     return contexts
 }
+
